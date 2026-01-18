@@ -1,0 +1,9 @@
+[project]
+name = "karohani-claude-code-plugin"
+version = "0.1.0"
+description = "Claude Code 플러그인 개발 실험실 - Skills와 MCP 서버 모음"
+requires-python = ">=3.10"
+readme = "CLAUDE.md"
+
+[tool.setuptools]
+packages = []

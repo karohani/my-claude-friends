@@ -1,0 +1,12 @@
+{
+  "name": "session-wrap",
+  "version": "1.0.0",
+  "description": "세션 마무리 워크플로우 - 멀티에이전트 분석으로 문서화, 자동화, 학습, 후속 작업 제안",
+  "author": {
+    "name": "Team Attention",
+    "url": "https://github.com/team-attention"
+  },
+  "repository": "https://github.com/team-attention/plugins-for-claude-natives",
+  "license": "MIT",
+  "keywords": ["session", "wrap", "analysis", "documentation", "automation"]
+}

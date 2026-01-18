@@ -1,0 +1,11 @@
+{
+  "name": "hello-skill",
+  "version": "0.1.0",
+  "description": "간단한 인사 스킬 - Skills 시스템 예제",
+  "author": {
+    "name": "Jay",
+    "url": "https://github.com/jay"
+  },
+  "license": "MIT",
+  "keywords": ["skill", "example", "hello"]
+}

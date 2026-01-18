@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "hello-mcp": {
+      "command": "/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/hello-mcp/.venv/bin/hello-mcp"
+    }
+  }
+}
