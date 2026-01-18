@@ -1,0 +1,8 @@
+{
+  "name": "youtube-digest",
+  "version": "1.0.0",
+  "description": "YouTube 영상 요약 - 자막 추출, 번역/교정, 마크다운 정리, 학습 퀴즈",
+  "author": { "name": "Jay" },
+  "license": "MIT",
+  "keywords": ["youtube", "digest", "summary", "transcript", "quiz"]
+}

@@ -1,3 +1,10 @@
+---
+name: hello
+description: This skill should be used when the user asks to "hello", "hi", "안녕", "인사", "start session", "프로젝트 소개", "what can you do", or greets Claude at the beginning of a session. Provides a friendly greeting and summarizes current project status.
+version: 1.0.0
+user-invocable: true
+---
+
 # Hello Skill
 
 첫 번째 예제 스킬 - Claude Code Skills 시스템 학습용

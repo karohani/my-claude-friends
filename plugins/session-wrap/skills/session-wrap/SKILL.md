@@ -1,3 +1,10 @@
+---
+name: session-wrap
+description: This skill should be used when the user asks to "wrap up", "wrap", "세션 마무리", "마무리해줘", "end session", "finish coding", "commit changes", "summarize session", or wants to conclude a coding session. Multi-agent analysis for documentation updates, automation opportunities, learnings, and follow-up tasks.
+version: 1.0.0
+user-invocable: true
+---
+
 # Session Wrap Skill
 
 Comprehensive workflow for concluding coding sessions with multi-agent analysis.

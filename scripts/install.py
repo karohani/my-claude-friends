@@ -17,8 +17,14 @@ from pathlib import Path
 
 # 설정
 REPO_URL = "https://github.com/jay/my-karohani-claude-code-plugin.git"
-INSTALL_DIR = Path.home() / ".claude" / "plugins" / "karohani-claude-code-plugin"
+MARKETPLACE_NAME = "karohani-plugins"
+INSTALL_DIR = Path.home() / ".claude" / "plugins" / "marketplaces" / MARKETPLACE_NAME
 SETTINGS_FILE = Path.home() / ".claude" / "settings.json"
+KNOWN_MARKETPLACES_FILE = Path.home() / ".claude" / "plugins" / "known_marketplaces.json"
+INSTALLED_PLUGINS_FILE = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+
+# 플러그인 목록
+PLUGINS = ["hello-skill", "session-wrap", "youtube-digest"]
 
 
 class Colors:
@@ -72,8 +78,6 @@ def check_git() -> bool:
     return shutil.which("git") is not None
 
 
-def check_uv() -> bool:
-    return shutil.which("uv") is not None
 
 
 def get_script_dir() -> Path:
@@ -119,29 +123,84 @@ def install_from_remote():
             sys.exit(1)
 
 
-def install_mcp_dependencies():
-    """MCP 서버 의존성 설치"""
-    print_info("MCP 서버 의존성 설치 중...")
-    mcp_dir = INSTALL_DIR / "plugins" / "hello-mcp"
-
-    if not mcp_dir.exists():
-        print_warning("hello-mcp 플러그인을 찾을 수 없습니다.")
-        return
-
-    if check_uv():
-        run_command(["uv", "venv"], cwd=mcp_dir)
-        if run_command(["uv", "pip", "install", "-e", "."], cwd=mcp_dir):
-            print_success("MCP 서버 설정 완료")
-        else:
-            print_warning("MCP 서버 설치 실패 (나중에 수동 설치 가능)")
+def check_yt_dlp():
+    """yt-dlp 설치 확인"""
+    if shutil.which("yt-dlp"):
+        print_success("yt-dlp 설치됨")
     else:
-        print_warning("uv가 없습니다. MCP 서버는 수동 설치 필요:")
-        print(f"    cd {mcp_dir} && pip install -e .")
+        print_warning("yt-dlp가 설치되어 있지 않습니다.")
+        print("    /youtube 스킬을 사용하려면: brew install yt-dlp")
+
+
+def update_known_marketplaces():
+    """마켓플레이스 등록"""
+    print_info("마켓플레이스 등록 중...")
+
+    if KNOWN_MARKETPLACES_FILE.exists():
+        with open(KNOWN_MARKETPLACES_FILE, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = {}
+    else:
+        KNOWN_MARKETPLACES_FILE.parent.mkdir(parents=True, exist_ok=True)
+        data = {}
+
+    data[MARKETPLACE_NAME] = {
+        "source": {
+            "source": "directory",
+            "path": str(INSTALL_DIR)
+        },
+        "installLocation": str(INSTALL_DIR),
+        "lastUpdated": __import__("datetime").datetime.now().isoformat() + "Z"
+    }
+
+    with open(KNOWN_MARKETPLACES_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print_success("마켓플레이스 등록 완료")
+
+
+def update_installed_plugins():
+    """플러그인 설치 등록"""
+    print_info("플러그인 설치 등록 중...")
+
+    if INSTALLED_PLUGINS_FILE.exists():
+        with open(INSTALLED_PLUGINS_FILE, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = {"version": 2, "plugins": {}}
+    else:
+        INSTALLED_PLUGINS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        data = {"version": 2, "plugins": {}}
+
+    if "plugins" not in data:
+        data["plugins"] = {}
+
+    now = __import__("datetime").datetime.now().isoformat() + "Z"
+
+    for plugin in PLUGINS:
+        plugin_key = f"{plugin}@{MARKETPLACE_NAME}"
+        plugin_path = INSTALL_DIR / "plugins" / plugin
+
+        data["plugins"][plugin_key] = [{
+            "scope": "user",
+            "installPath": str(plugin_path),
+            "version": "1.0.0",
+            "installedAt": now,
+            "lastUpdated": now
+        }]
+
+    with open(INSTALLED_PLUGINS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print_success("플러그인 설치 등록 완료")
 
 
 def update_settings():
-    """Claude Code 설정 업데이트"""
-    print_info("Claude Code 설정 업데이트 중...")
+    """Claude Code 설정 업데이트 - 플러그인 활성화"""
+    print_info("플러그인 활성화 중...")
 
     if SETTINGS_FILE.exists():
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
@@ -153,20 +212,16 @@ def update_settings():
         SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
         settings = {}
 
-    if "extraKnownMarketplaces" not in settings:
-        settings["extraKnownMarketplaces"] = {}
+    if "enabledPlugins" not in settings:
+        settings["enabledPlugins"] = {}
 
-    settings["extraKnownMarketplaces"]["karohani-plugins"] = {
-        "source": {
-            "source": "directory",
-            "path": str(INSTALL_DIR)
-        }
-    }
+    for plugin in PLUGINS:
+        settings["enabledPlugins"][f"{plugin}@{MARKETPLACE_NAME}"] = True
 
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=2, ensure_ascii=False)
 
-    print_success("마켓플레이스 등록 완료")
+    print_success("플러그인 활성화 완료")
 
 
 def print_completion():
@@ -179,14 +234,10 @@ def print_completion():
     print()
     print(f"{Colors.YELLOW}다음 단계:{Colors.NC}")
     print("  1. Claude Code 재시작")
-    print("  2. 플러그인 설치:")
-    print("     /plugin install hello-skill")
-    print("     /plugin install hello-mcp")
-    print("     /plugin install session-wrap")
-    print()
-    print(f"{Colors.YELLOW}또는 직접 사용:{Colors.NC}")
-    print("  /wrap              # 세션 마무리")
-    print("  /hello             # 인사 스킬")
+    print("  2. 슬래시 커맨드 사용:")
+    print("     /hello             # 인사 스킬")
+    print("     /wrap              # 세션 마무리")
+    print("     /youtube [URL]     # YouTube 요약 (yt-dlp 필요)")
     print()
 
 
@@ -213,7 +264,9 @@ def main():
             sys.exit(1)
         install_from_remote()
 
-    install_mcp_dependencies()
+    check_yt_dlp()
+    update_known_marketplaces()
+    update_installed_plugins()
     update_settings()
     print_completion()
 

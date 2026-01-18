@@ -1,20 +1,44 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "karohani-plugins",
   "description": "Claude Code 플러그인 개발 실험실 - Skills, Agents 예제 모음",
-  "author": {
+  "owner": {
     "name": "Jay",
-    "url": "https://github.com/jay"
+    "email": "jay@example.com"
   },
   "plugins": [
     {
       "name": "hello-skill",
       "description": "간단한 인사 스킬 - Skills 시스템 예제",
-      "path": "./plugins/hello-skill"
+      "version": "1.0.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/hello-skill",
+      "category": "productivity"
     },
     {
       "name": "session-wrap",
       "description": "세션 마무리 워크플로우 - 멀티에이전트 분석으로 문서화, 자동화, 학습, 후속 작업 제안",
-      "path": "./plugins/session-wrap"
+      "version": "1.0.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/session-wrap",
+      "category": "productivity"
+    },
+    {
+      "name": "youtube-digest",
+      "description": "YouTube 영상 요약 - 자막 추출, 번역/교정, 마크다운 정리, 학습 퀴즈",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/youtube-digest",
+      "category": "productivity"
     }
   ]
 }

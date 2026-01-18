@@ -1,3 +1,10 @@
+---
+name: history-insight
+description: This skill should be used when the user asks to "analyze history", "히스토리 분석", "session history", "세션 기록", "past sessions", "이전 세션", "capture insights", "find patterns", or wants to extract insights from Claude Code session history files.
+version: 1.0.0
+user-invocable: true
+---
+
 # History Insight Skill
 
 Extract insights from Claude Code session history.

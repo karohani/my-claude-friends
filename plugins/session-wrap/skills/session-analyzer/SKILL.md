@@ -1,3 +1,10 @@
+---
+name: session-analyzer
+description: This skill should be used when the user asks to "analyze session", "세션 분석", "validate skill", "스킬 검증", "check session logs", "debug skill", "verify execution", or provides a session ID with a skill path to validate behavior against SKILL.md specifications.
+version: 1.0.0
+user-invocable: true
+---
+
 # Session Analyzer Skill
 
 Post-hoc analysis of Claude Code sessions to validate behavior against SKILL.md specifications.

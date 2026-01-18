@@ -11,10 +11,15 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 # 플러그인 설치
 /plugin install hello-skill
 /plugin install session-wrap
+/plugin install youtube-digest
 
 # 세션 마무리 사용
 /wrap              # 대화형 세션 분석
 /wrap [message]    # 빠른 커밋
+
+# YouTube 영상 분석 (yt-dlp 필요)
+/youtube [URL]         # 자막 추출 + 요약
+/youtube [URL] --quiz  # 퀴즈 포함
 ```
 
 ## 프로젝트 구조 (마켓플레이스)
@@ -28,19 +33,33 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   ├── hello-skill/          # Skills 방식 예제
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/hello/SKILL.md
-│   └── session-wrap/         # 멀티에이전트 워크플로우
+│   ├── session-wrap/         # 멀티에이전트 워크플로우
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── agents/           # 5개 전문화 에이전트
+│   │   │   ├── doc-updater.md
+│   │   │   ├── automation-scout.md
+│   │   │   ├── learning-extractor.md
+│   │   │   ├── followup-suggester.md
+│   │   │   └── duplicate-checker.md
+│   │   ├── commands/wrap.md
+│   │   └── skills/
+│   │       ├── session-wrap/SKILL.md
+│   │       ├── history-insight/SKILL.md
+│   │       └── session-analyzer/SKILL.md
+│   └── youtube-digest/       # YouTube 영상 요약
 │       ├── .claude-plugin/plugin.json
-│       ├── agents/           # 5개 전문화 에이전트
-│       │   ├── doc-updater.md
-│       │   ├── automation-scout.md
-│       │   ├── learning-extractor.md
-│       │   ├── followup-suggester.md
-│       │   └── duplicate-checker.md
-│       ├── commands/wrap.md
+│       ├── agents/           # 4개 전문화 에이전트
+│       │   ├── transcript-extractor.md
+│       │   ├── proper-noun-corrector.md
+│       │   ├── summary-generator.md
+│       │   └── quiz-generator.md
+│       ├── commands/youtube.md
 │       └── skills/
-│           ├── session-wrap/SKILL.md
-│           ├── history-insight/SKILL.md
-│           └── session-analyzer/SKILL.md
+│           └── youtube-digest/SKILL.md
+├── scripts/
+│   ├── install.py            # 설치 스크립트
+│   ├── uninstall.py          # 제거 스크립트
+│   └── dev.py                # 개발 모드 설정
 ├── CLAUDE.md                 # 이 파일
 ├── README.md
 └── pyproject.toml
@@ -52,6 +71,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 |---------|------|------|
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
+| youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
 
 ## 다섯 가지 플러그인 컴포넌트
 
@@ -107,11 +127,19 @@ mkdir -p plugins/<name>/commands       # Commands용
 ### 3. marketplace.json에 등록
 ```json
 {
+  "owner": { "name": "작성자", "email": "email@example.com" },
   "plugins": [
-    { "name": "<name>", "path": "./plugins/<name>" }
+    {
+      "name": "<name>",
+      "source": "./plugins/<name>",
+      "version": "1.0.0",
+      "author": { "name": "작성자", "email": "email@example.com" },
+      "category": "productivity"
+    }
   ]
 }
 ```
+**주의**: `path` 대신 `source` 필드 사용, `owner` 필수
 
 ## 개발 인사이트
 
@@ -121,13 +149,35 @@ mkdir -p plugins/<name>/commands       # Commands용
 - `uv`로 Python 의존성 관리하면 편함
 - Agents는 markdown으로 정의하고 Task 도구로 실행
 
+### Claude Code 플러그인 시스템 파일 구조
+```
+~/.claude/
+├── plugins/
+│   ├── known_marketplaces.json    # 등록된 마켓플레이스 목록
+│   ├── installed_plugins.json     # 설치된 플러그인 목록
+│   └── marketplaces/
+│       └── {marketplace-name}/    # 마켓플레이스별 플러그인 저장
+└── settings.json                  # enabledPlugins로 활성화 관리
+```
+
 ### 실패한 시도
 - settings.local.json에 mcpServers 넣으면 안됨 (스키마 오류)
+- marketplace.json에서 `path` 대신 `source` 필드 사용해야 함
 
 ### 유용한 패턴
 - `${pluginDir}` 변수로 플러그인 경로 참조
 - 멀티에이전트 파이프라인: Phase 1 병렬 실행 → Phase 2 검증 패턴 (session-wrap 참고)
 - Task 도구로 에이전트 병렬 실행 가능
+- SKILL.md description 패턴: `"This skill should be used when the user asks to..."` 형식이 Claude 스킬 매칭 정확도 향상
+- 다국어 트리거 키워드: 한국어/영어 병기 시 더 많은 상황에서 매칭됨 (예: `"wrap up"`, `"세션 마무리"`, `"마무리해줘"`)
+
+### 개발 모드 (dev.py)
+```bash
+python scripts/dev.py          # 현재 디렉토리를 마켓플레이스로 직접 등록
+python scripts/dev.py --off    # 개발 모드 비활성화
+```
+- 파일 수정 시 복사 없이 바로 반영됨
+- Claude Code 재시작 필요
 
 ## 참고 자료
 
