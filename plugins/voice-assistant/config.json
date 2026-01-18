@@ -1,0 +1,20 @@
+{
+  "stt": {
+    "provider": "whisper-cpp",
+    "whisper_model": "~/.whisper/ggml-large-v3-turbo.bin",
+    "openai_model": "whisper-1"
+  },
+  "tts": {
+    "enabled": true,
+    "mode": "summary",
+    "voice_ko": "Yuna",
+    "voice_en": "Samantha",
+    "rate": 190
+  },
+  "recording": {
+    "sample_rate": 16000,
+    "channels": 1,
+    "max_duration": 30,
+    "output_path": "/tmp/voice_input.wav"
+  }
+}

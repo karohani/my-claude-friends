@@ -70,6 +70,7 @@ def enable_dev_mode():
     settings["enabledPlugins"]["hello-skill@karohani-dev"] = True
     settings["enabledPlugins"]["session-wrap@karohani-dev"] = True
     settings["enabledPlugins"]["youtube-digest@karohani-dev"] = True
+    settings["enabledPlugins"]["voice-assistant@karohani-dev"] = True
 
     save_settings(settings)
 
@@ -85,6 +86,7 @@ def enable_dev_mode():
     print("     /hello             # 인사 스킬")
     print("     /wrap              # 세션 마무리")
     print("     /youtube [URL]     # YouTube 요약 (yt-dlp 필요)")
+    print("     /voice             # 음성 입출력 (sox, whisper-cpp 필요)")
     print()
     print(f"{Colors.YELLOW}파일 수정 시:{Colors.NC}")
     print("  - SKILL.md, agents/*.md 등 수정하면 바로 반영")
@@ -103,6 +105,7 @@ def disable_dev_mode():
         settings["enabledPlugins"].pop("hello-skill@karohani-dev", None)
         settings["enabledPlugins"].pop("session-wrap@karohani-dev", None)
         settings["enabledPlugins"].pop("youtube-digest@karohani-dev", None)
+        settings["enabledPlugins"].pop("voice-assistant@karohani-dev", None)
 
     save_settings(settings)
 

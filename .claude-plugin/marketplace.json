@@ -39,6 +39,17 @@
       },
       "source": "./plugins/youtube-digest",
       "category": "productivity"
+    },
+    {
+      "name": "voice-assistant",
+      "description": "음성 입출력 - STT(whisper.cpp/OpenAI) + TTS(macOS say) 지원",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/voice-assistant",
+      "category": "productivity"
     }
   ]
 }

@@ -12,6 +12,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 /plugin install hello-skill
 /plugin install session-wrap
 /plugin install youtube-digest
+/plugin install voice-assistant
 
 # 세션 마무리 사용
 /wrap              # 대화형 세션 분석
@@ -20,6 +21,11 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 # YouTube 영상 분석 (yt-dlp 필요)
 /youtube [URL]         # 자막 추출 + 요약
 /youtube [URL] --quiz  # 퀴즈 포함
+
+# 음성 입출력 (sox, whisper-cpp 필요)
+/voice                 # 상태 확인
+/voice ask             # 음성으로 질문
+/voice on|off          # TTS 켜기/끄기
 ```
 
 ## 프로젝트 구조 (마켓플레이스)
@@ -46,16 +52,28 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │       ├── session-wrap/SKILL.md
 │   │       ├── history-insight/SKILL.md
 │   │       └── session-analyzer/SKILL.md
-│   └── youtube-digest/       # YouTube 영상 요약
+│   ├── youtube-digest/       # YouTube 영상 요약
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── agents/           # 4개 전문화 에이전트
+│   │   │   ├── transcript-extractor.md
+│   │   │   ├── proper-noun-corrector.md
+│   │   │   ├── summary-generator.md
+│   │   │   └── quiz-generator.md
+│   │   ├── commands/youtube.md
+│   │   └── skills/
+│   │       └── youtube-digest/SKILL.md
+│   └── voice-assistant/      # 음성 입출력
 │       ├── .claude-plugin/plugin.json
-│       ├── agents/           # 4개 전문화 에이전트
-│       │   ├── transcript-extractor.md
-│       │   ├── proper-noun-corrector.md
-│       │   ├── summary-generator.md
-│       │   └── quiz-generator.md
-│       ├── commands/youtube.md
+│       ├── config.json       # STT/TTS 설정
+│       ├── hooks/hooks.json  # Stop → TTS 자동 실행
+│       ├── scripts/          # Python 스크립트
+│       │   ├── speak.py      # TTS (Haiku 요약 + say)
+│       │   ├── record.py     # 녹음 (sox)
+│       │   ├── transcribe.py # STT (whisper/OpenAI)
+│       │   └── config_loader.py
+│       ├── commands/voice.md
 │       └── skills/
-│           └── youtube-digest/SKILL.md
+│           └── voice-assistant/SKILL.md
 ├── scripts/
 │   ├── install.py            # 설치 스크립트
 │   ├── uninstall.py          # 제거 스크립트
@@ -72,6 +90,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 | youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
+| voice-assistant | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
 
 ## 다섯 가지 플러그인 컴포넌트
 
@@ -85,7 +104,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 - **위치**: `plugins/<name>/hooks/hooks.json`
 - **용도**: 이벤트 기반 자동 실행 (Stop, PreToolUse 등)
 - **트리거**: Claude Code 이벤트
-- **예제**: (아직 없음 - 추가 예정)
+- **예제**: `plugins/voice-assistant/hooks/` (Stop 이벤트로 TTS 실행)
 
 ### 3. MCP 서버 (Python)
 - **위치**: `plugins/<name>/src/server.py`
@@ -148,6 +167,13 @@ mkdir -p plugins/<name>/commands       # Commands용
 - Skills는 SKILL.md 하나로 슬래시 커맨드 정의 가능
 - `uv`로 Python 의존성 관리하면 편함
 - Agents는 markdown으로 정의하고 Task 도구로 실행
+- hooks.json의 "hooks" 필드는 객체 (object)여야 하며, 이벤트명을 키로 가짐 (배열 아님)
+- macOS Homebrew Python 같은 externally-managed 환경에서는 venv 필수
+- dev.py는 "karohani-dev" 마켓플레이스 별도 생성 (karohani-plugins와 분리)
+- 마켓플레이스 캐시 (~/.claude/plugins/cache/)는 때로 수동 업데이트 필요
+- Stop 이벤트 hook은 CLAUDE_STOP_RESPONSE 환경변수로 응답 내용 전달받음
+- 백그라운드 TTS: subprocess.Popen(start_new_session=True) 패턴 사용
+- Korean 언어감지: Unicode 범위(0xAC00-0xD7A3) 체크하면 효율적
 
 ### Claude Code 플러그인 시스템 파일 구조
 ```
@@ -163,6 +189,9 @@ mkdir -p plugins/<name>/commands       # Commands용
 ### 실패한 시도
 - settings.local.json에 mcpServers 넣으면 안됨 (스키마 오류)
 - marketplace.json에서 `path` 대신 `source` 필드 사용해야 함
+- hooks.json의 "hooks"를 배열로 정의하면 안됨 (반드시 객체 형태: {"eventName": {...}})
+- 현재 Python 환경에서 venv 없이 패키지 설치하면 externally-managed 오류 발생 (Homebrew)
+- 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
 
 ### 유용한 패턴
 - `${pluginDir}` 변수로 플러그인 경로 참조

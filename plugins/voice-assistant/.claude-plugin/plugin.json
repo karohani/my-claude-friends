@@ -1,0 +1,8 @@
+{
+  "name": "voice-assistant",
+  "version": "0.1.0",
+  "description": "Voice input (STT) and output (TTS) for Claude Code. Speak to Claude and hear responses.",
+  "author": {
+    "name": "karohani"
+  }
+}
