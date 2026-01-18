@@ -2,8 +2,12 @@
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "${pluginDir}/.venv/bin/python ${pluginDir}/scripts/speak.py"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${pluginDir}/.venv/bin/python ${pluginDir}/scripts/speak.py"
+          }
+        ]
       }
     ]
   }

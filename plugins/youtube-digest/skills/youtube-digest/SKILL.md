@@ -52,7 +52,17 @@ pip install yt-dlp
    yt-dlp --write-auto-sub --sub-lang ko --skip-download --output "%(id)s" "URL"
    ```
 
-4. **자막 파일 파싱**: VTT 파일에서 텍스트 추출, 타임스탬프 정리
+4. **자막 파일 파싱**: Python 스크립트로 VTT 파싱
+   ```bash
+   # 기본 (중복 제거 + 병합)
+   python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt
+
+   # 타임스탬프 포함
+   python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt --timestamps
+
+   # JSON 형식 출력
+   python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt --json
+   ```
 
 ### Phase 2: 고유명사 교정
 

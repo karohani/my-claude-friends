@@ -167,7 +167,7 @@ mkdir -p plugins/<name>/commands       # Commands용
 - Skills는 SKILL.md 하나로 슬래시 커맨드 정의 가능
 - `uv`로 Python 의존성 관리하면 편함
 - Agents는 markdown으로 정의하고 Task 도구로 실행
-- hooks.json의 "hooks" 필드는 객체 (object)여야 하며, 이벤트명을 키로 가짐 (배열 아님)
+- hooks.json 구조: `{"hooks": {"EventName": [{"hooks": [{type, command}]}]}}` (중첩 구조)
 - macOS Homebrew Python 같은 externally-managed 환경에서는 venv 필수
 - dev.py는 "karohani-dev" 마켓플레이스 별도 생성 (karohani-plugins와 분리)
 - 마켓플레이스 캐시 (~/.claude/plugins/cache/)는 때로 수동 업데이트 필요
@@ -189,7 +189,7 @@ mkdir -p plugins/<name>/commands       # Commands용
 ### 실패한 시도
 - settings.local.json에 mcpServers 넣으면 안됨 (스키마 오류)
 - marketplace.json에서 `path` 대신 `source` 필드 사용해야 함
-- hooks.json의 "hooks"를 배열로 정의하면 안됨 (반드시 객체 형태: {"eventName": {...}})
+- hooks.json의 "hooks"를 단순 배열/객체로 정의하면 안됨 (중첩 필요: EventName → [{hooks: [...]}])
 - 현재 Python 환경에서 venv 없이 패키지 설치하면 externally-managed 오류 발생 (Homebrew)
 - 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
 
