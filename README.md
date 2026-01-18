@@ -4,6 +4,20 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents를 
 
 ## 설치
 
+### 방법 1: 설치 스크립트 (권장)
+
+```bash
+# 원격 설치
+curl -fsSL https://raw.githubusercontent.com/jay/my-karohani-claude-code-plugin/main/scripts/install.py | python3
+
+# 또는 로컬 설치
+git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+cd my-karohani-claude-code-plugin
+python scripts/install.py
+```
+
+### 방법 2: 마켓플레이스
+
 ```bash
 # 마켓플레이스 추가
 /plugin marketplace add jay/my-karohani-claude-code-plugin
@@ -12,6 +26,12 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents를 
 /plugin install hello-skill
 /plugin install hello-mcp
 /plugin install session-wrap
+```
+
+### 제거
+
+```bash
+python scripts/uninstall.py
 ```
 
 ## 플러그인 목록
