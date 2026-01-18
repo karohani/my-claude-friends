@@ -1,6 +1,6 @@
 {
   "name": "karohani-plugins",
-  "description": "Claude Code 플러그인 개발 실험실 - Skills, Hooks, MCP 서버 예제 모음",
+  "description": "Claude Code 플러그인 개발 실험실 - Skills, Agents 예제 모음",
   "author": {
     "name": "Jay",
     "url": "https://github.com/jay"
@@ -10,11 +10,6 @@
       "name": "hello-skill",
       "description": "간단한 인사 스킬 - Skills 시스템 예제",
       "path": "./plugins/hello-skill"
-    },
-    {
-      "name": "hello-mcp",
-      "description": "간단한 MCP 서버 - greet, echo 도구 제공",
-      "path": "./plugins/hello-mcp"
     },
     {
       "name": "session-wrap",

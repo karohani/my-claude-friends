@@ -39,7 +39,6 @@ python scripts/uninstall.py
 | 플러그인 | 타입 | 설명 |
 |---------|------|------|
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
-| hello-mcp | MCP 서버 | greet, echo 도구 제공 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 
 ## 주요 기능
@@ -65,11 +64,48 @@ python scripts/uninstall.py
 │   └── marketplace.json
 ├── plugins/
 │   ├── hello-skill/          # Skills 예제
-│   ├── hello-mcp/            # MCP 서버 예제
 │   └── session-wrap/         # 멀티에이전트 워크플로우
 ├── CLAUDE.md                 # Claude Code용 상세 문서
 └── README.md
 ```
+
+## 개발환경
+
+플러그인을 직접 개발하거나 수정하려면 로컬 마켓플레이스로 등록하세요.
+
+### 설정 방법
+
+1. 저장소 클론:
+```bash
+git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+cd my-karohani-claude-code-plugin
+```
+
+2. `~/.claude/settings.json`에 로컬 마켓플레이스 추가:
+```json
+{
+  "extraKnownMarketplaces": {
+    "karohani-dev": {
+      "source": {
+        "source": "directory",
+        "path": "/your/path/to/my-karohani-claude-code-plugin"
+      }
+    }
+  }
+}
+```
+
+3. 플러그인 설치:
+```bash
+/plugin install hello-skill@karohani-dev
+/plugin install session-wrap@karohani-dev
+```
+
+### 개발 워크플로우
+
+- 플러그인 파일 수정 후 Claude Code 재시작하면 변경사항 반영
+- `plugins/` 디렉토리에 새 플러그인 추가 가능
+- `.claude-plugin/marketplace.json`에 새 플러그인 등록 필요
 
 ## 라이선스
 

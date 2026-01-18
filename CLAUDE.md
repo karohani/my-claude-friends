@@ -1,6 +1,6 @@
 # Karohani Claude Code Plugin
 
-Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents, Commands를 모두 다루는 마켓플레이스.
+Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 다루는 마켓플레이스.
 
 ## 설치 방법
 
@@ -10,7 +10,6 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents, Co
 
 # 플러그인 설치
 /plugin install hello-skill
-/plugin install hello-mcp
 /plugin install session-wrap
 
 # 세션 마무리 사용
@@ -29,10 +28,6 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents, Co
 │   ├── hello-skill/          # Skills 방식 예제
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/hello/SKILL.md
-│   ├── hello-mcp/            # MCP 서버 방식 예제
-│   │   ├── .claude-plugin/plugin.json
-│   │   ├── src/server.py
-│   │   └── pyproject.toml
 │   └── session-wrap/         # 멀티에이전트 워크플로우
 │       ├── .claude-plugin/plugin.json
 │       ├── agents/           # 5개 전문화 에이전트
@@ -56,7 +51,6 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents, Co
 | 플러그인 | 타입 | 설명 |
 |---------|------|------|
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
-| hello-mcp | MCP 서버 | greet, echo 도구 제공 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 
 ## 다섯 가지 플러그인 컴포넌트
@@ -77,7 +71,6 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents, Co
 - **위치**: `plugins/<name>/src/server.py`
 - **용도**: 커스텀 도구, API 호출, 외부 서비스 연동
 - **설정**: plugin.json의 `mcpServers` 필드
-- **예제**: `plugins/hello-mcp/`
 
 ### 4. Agents (agents/*.md)
 - **위치**: `plugins/<name>/agents/<agent-name>.md`
