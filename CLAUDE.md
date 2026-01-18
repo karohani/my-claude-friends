@@ -192,9 +192,10 @@ mkdir -p plugins/<name>/commands       # Commands용
 - hooks.json의 "hooks"를 단순 배열/객체로 정의하면 안됨 (중첩 필요: EventName → [{hooks: [...]}])
 - 현재 Python 환경에서 venv 없이 패키지 설치하면 externally-managed 오류 발생 (Homebrew)
 - 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
+- hooks.json에서 `${pluginDir}` 사용 불가 → `${CLAUDE_PLUGIN_ROOT}` 사용 (venv는 절대경로 필요)
 
 ### 유용한 패턴
-- `${pluginDir}` 변수로 플러그인 경로 참조
+- `${pluginDir}` 변수는 commands/skills에서 사용, hooks에서는 `${CLAUDE_PLUGIN_ROOT}` 사용
 - 멀티에이전트 파이프라인: Phase 1 병렬 실행 → Phase 2 검증 패턴 (session-wrap 참고)
 - Task 도구로 에이전트 병렬 실행 가능
 - SKILL.md description 패턴: `"This skill should be used when the user asks to..."` 형식이 Claude 스킬 매칭 정확도 향상
