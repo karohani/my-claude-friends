@@ -177,6 +177,8 @@ mkdir -p plugins/<name>/commands       # Commands용
 - Korean 언어감지: Unicode 범위(0xAC00-0xD7A3) 체크하면 효율적
 - **마켓플레이스 설치 시 .venv 복사 안됨** (.gitignore 제외) → pyproject.toml + `uv run` 패턴 사용
 - `uv run --directory ${pluginDir}` 패턴: venv 없이 의존성 자동 설치/실행 (hooks는 `${CLAUDE_PLUGIN_ROOT}`)
+- **Hook 실행 시 cwd는 프로젝트가 아닌 캐시 디렉토리** (`~/.claude/plugins/cache/`) → `os.getcwd()` 사용 불가
+- **CLAUDE_PROJECT_ROOT 환경변수 없음** - 프로젝트 경로 접근 시 `~/.claude/projects/` 전체 탐색 필요
 
 ### Claude Code 플러그인 시스템 파일 구조
 ```
@@ -196,6 +198,7 @@ mkdir -p plugins/<name>/commands       # Commands용
 - 현재 Python 환경에서 venv 없이 패키지 설치하면 externally-managed 오류 발생 (Homebrew)
 - 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
 - hooks.json에서 `${pluginDir}` 사용 불가 → `${CLAUDE_PLUGIN_ROOT}` 사용 (venv는 절대경로 필요)
+- Hook에서 `os.getcwd()` 기반 프로젝트 디렉토리 탐지 불가 → 캐시 디렉토리에서 실행되므로 `~/.claude/projects/` 전체 검색 필요
 
 ### 유용한 패턴
 - `${pluginDir}` 변수는 commands/skills에서 사용, hooks에서는 `${CLAUDE_PLUGIN_ROOT}` 사용

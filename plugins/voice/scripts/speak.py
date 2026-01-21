@@ -37,25 +37,23 @@ def log(message: str) -> None:
         f.write(f"[{timestamp}] {message}\n")
 
 
-def get_project_dir() -> Path | None:
-    """Find Claude project directory for current working directory."""
-    cwd = os.getcwd()
-    # /Users/bong/path/to/project -> -Users-bong-path-to-project
-    project_dir_name = cwd.replace("/", "-")
-    claude_project_dir = Path.home() / ".claude" / "projects" / project_dir_name
+def get_latest_transcript() -> Path | None:
+    """Find the most recently modified transcript file across all projects.
 
-    if claude_project_dir.is_dir():
-        return claude_project_dir
-    return None
-
-
-def get_latest_transcript(project_dir: Path) -> Path | None:
-    """Find most recently modified transcript file."""
-    jsonl_files = list(project_dir.glob("*.jsonl"))
-    if not jsonl_files:
+    Since hooks run from plugin cache directory (not project directory),
+    we search all project directories for the latest transcript.
+    """
+    projects_dir = Path.home() / ".claude" / "projects"
+    if not projects_dir.is_dir():
         return None
 
-    return max(jsonl_files, key=lambda f: f.stat().st_mtime)
+    # Find all transcript files across all projects
+    all_transcripts = list(projects_dir.glob("*/*.jsonl"))
+    if not all_transcripts:
+        return None
+
+    # Return the most recently modified one
+    return max(all_transcripts, key=lambda f: f.stat().st_mtime)
 
 
 def extract_last_assistant_message(transcript_path: Path) -> str | None:
@@ -165,7 +163,6 @@ def speak(text: str, config: dict) -> None:
 
 async def async_main() -> None:
     log("=== HOOK START ===")
-    log(f"PWD: {os.getcwd()}")
 
     # Load config
     config = load_config()
@@ -176,28 +173,21 @@ async def async_main() -> None:
         log("TTS disabled in config")
         return
 
-    # 1. Find project directory
-    project_dir = get_project_dir()
-    if not project_dir:
-        log("Project dir not found")
-        return
-    log(f"Project dir: {project_dir}")
-
-    # 2. Find latest transcript file
-    transcript_path = get_latest_transcript(project_dir)
+    # 1. Find latest transcript file (across all projects)
+    transcript_path = get_latest_transcript()
     if not transcript_path:
         log("No transcript file found")
         return
-    log(f"Transcript: {transcript_path.name}")
+    log(f"Transcript: {transcript_path}")
 
-    # 3. Extract last assistant message
+    # 2. Extract last assistant message
     last_message = extract_last_assistant_message(transcript_path)
     if not last_message:
         log("No assistant message found")
         return
     log(f"Found message ({len(last_message)} chars)")
 
-    # 4. Summarize with Haiku (if mode is summary)
+    # 3. Summarize with Haiku (if mode is summary)
     mode = tts_config.get('mode', 'summary')
     if mode == 'summary':
         summary = await summarize_with_haiku(last_message)
@@ -206,7 +196,7 @@ async def async_main() -> None:
         summary = last_message[:500]
     log(f"Summary: {summary}")
 
-    # 5. Speak summary
+    # 4. Speak summary
     speak(summary, config)
 
     log("=== HOOK END ===")
