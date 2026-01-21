@@ -2,10 +2,6 @@
 
 Voice input and output for Claude Code. Record voice, transcribe, and get spoken responses.
 
-## Plugin Path
-
-This plugin is located at: `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant`
-
 ## Allowed Tools
 
 Bash, Read, Write, AskUserQuestion
@@ -22,14 +18,14 @@ Bash, Read, Write, AskUserQuestion
 
 ### /voice
 
-Read config from `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json` and display status.
+Read config from `${pluginDir}/config.json` and display status.
 
 ### /voice ask
 
-1. **Record**: Run `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/.venv/bin/python /Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/scripts/record.py`
+1. **Record**: Run `uv run --directory ${pluginDir} python ${pluginDir}/scripts/record.py`
    - Inform user: "Recording... Press Ctrl+C when done (max 30s)"
 
-2. **Transcribe**: Run `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/.venv/bin/python /Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/scripts/transcribe.py`
+2. **Transcribe**: Run `uv run --directory ${pluginDir} python ${pluginDir}/scripts/transcribe.py`
    - Display transcribed text
 
 3. **Confirm**: Ask user if the transcription is correct
@@ -39,15 +35,17 @@ Read config from `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/vo
 
 ### /voice on|off
 
-Edit `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json`:
+Edit `${pluginDir}/config.json`:
 - Set `tts.enabled` to `true` or `false`
 
 ### /voice config
 
-Read and display `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json`
+Read and display `${pluginDir}/config.json`
 
 ## Dependencies
 
+- **uv**: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **sox**: `brew install sox`
 - **whisper-cpp**: `brew install whisper-cpp`
-- **anthropic**: In plugin's .venv
+
+Python dependencies are auto-installed via `uv run`.

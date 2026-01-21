@@ -9,10 +9,6 @@ user-invocable: true
 
 Alias for voice-assistant. See `/voice-assistant:voice` for full documentation.
 
-## Plugin Path
-
-`/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant`
-
 ## Commands
 
 - `/voice` or `/voice config` - Show configuration
@@ -24,18 +20,18 @@ Alias for voice-assistant. See `/voice-assistant:voice` for full documentation.
 
 ### /voice (default)
 
-Read `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json` and show status.
+Read `${pluginDir}/config.json` and show status.
 
 ### /voice ask
 
-1. Run: `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/.venv/bin/python /Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/scripts/record.py`
-2. Run: `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/.venv/bin/python /Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/scripts/transcribe.py`
+1. Run: `uv run --directory ${pluginDir} python ${pluginDir}/scripts/record.py`
+2. Run: `uv run --directory ${pluginDir} python ${pluginDir}/scripts/transcribe.py`
 3. Confirm with user, then process as input
 
 ### /voice on
 
-Edit `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json`, set `tts.enabled` to `true`
+Edit `${pluginDir}/config.json`, set `tts.enabled` to `true`
 
 ### /voice off
 
-Edit `/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/config.json`, set `tts.enabled` to `false`
+Edit `${pluginDir}/config.json`, set `tts.enabled` to `false`

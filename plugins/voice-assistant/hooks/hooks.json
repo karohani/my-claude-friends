@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/jay/workspace/my-karohani-claude-code-plugin/plugins/voice-assistant/.venv/bin/python ${CLAUDE_PLUGIN_ROOT}/scripts/speak.py"
+            "command": "uv run --directory ${CLAUDE_PLUGIN_ROOT} python ${CLAUDE_PLUGIN_ROOT}/scripts/speak.py",
+            "timeout": 30
           }
         ]
       }

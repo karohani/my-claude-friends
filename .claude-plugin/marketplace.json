@@ -41,7 +41,7 @@
       "category": "productivity"
     },
     {
-      "name": "voice-assistant",
+      "name": "voice",
       "description": "음성 입출력 - STT(whisper.cpp/OpenAI) + TTS(macOS say) 지원",
       "version": "0.1.0",
       "author": {

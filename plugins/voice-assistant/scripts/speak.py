@@ -1,77 +1,161 @@
 #!/usr/bin/env python3
 """
-TTS script for voice-assistant plugin.
+Stop hook: Summarizes and speaks the last Claude response.
 
-Receives Claude's response, summarizes with Haiku, and speaks using macOS say.
+Based on say-summary plugin from team-attention.
 
-Usage (from Stop hook):
-    Environment variables:
-    - CLAUDE_STOP_RESPONSE: Claude's response text (JSON)
+- Extracts the last assistant message from transcript
+- Uses Claude Agent SDK (Haiku) to summarize in 10 words or less
+- Speaks the summary via macOS say command
+- Runs in background so hook exits immediately
 """
 
+import asyncio
 import json
 import os
 import re
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 from config_loader import load_config
 
+from claude_agent_sdk import (AssistantMessage, ClaudeAgentOptions, TextBlock,
+                              query)
 
-def detect_language(text: str) -> str:
-    """Detect if text is primarily Korean or English."""
-    korean_chars = len(re.findall(r'[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]', text))
-    total_chars = len(re.findall(r'\w', text))
-
-    if total_chars == 0:
-        return "en"
-
-    korean_ratio = korean_chars / total_chars
-    return "ko" if korean_ratio > 0.3 else "en"
+LOG_FILE = Path("/tmp/voice-assistant-hook.log")
 
 
-def summarize_with_haiku(text: str, max_words: int = 10) -> str:
-    """Use Claude Haiku to summarize text to a short phrase."""
+def log(message: str) -> None:
+    """Write message to log file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(LOG_FILE, "a") as f:
+        f.write(f"[{timestamp}] {message}\n")
+
+
+def get_project_dir() -> Path | None:
+    """Find Claude project directory for current working directory."""
+    cwd = os.getcwd()
+    # /Users/bong/path/to/project -> -Users-bong-path-to-project
+    project_dir_name = cwd.replace("/", "-")
+    claude_project_dir = Path.home() / ".claude" / "projects" / project_dir_name
+
+    if claude_project_dir.is_dir():
+        return claude_project_dir
+    return None
+
+
+def get_latest_transcript(project_dir: Path) -> Path | None:
+    """Find most recently modified transcript file."""
+    jsonl_files = list(project_dir.glob("*.jsonl"))
+    if not jsonl_files:
+        return None
+
+    return max(jsonl_files, key=lambda f: f.stat().st_mtime)
+
+
+def extract_last_assistant_message(transcript_path: Path) -> str | None:
+    """Extract last assistant message from transcript."""
     try:
-        import anthropic
+        with open(transcript_path, "r") as f:
+            lines = f.readlines()
 
-        client = anthropic.Anthropic()
+        # Search in reverse order
+        for line in reversed(lines):
+            try:
+                data = json.loads(line)
+                message = data.get("message", {})
 
-        # Detect language for prompt
-        lang = detect_language(text)
-        if lang == "ko":
-            prompt = f"다음 텍스트를 3~10단어로 핵심만 요약해줘. 요약만 출력해:\n\n{text[:2000]}"
-        else:
-            prompt = f"Summarize this text in 3-10 words. Output only the summary:\n\n{text[:2000]}"
+                if message and message.get("role") == "assistant":
+                    content = message.get("content", [])
 
-        response = client.messages.create(
-            model="claude-haiku-4-20250514",
-            max_tokens=100,
-            messages=[{"role": "user", "content": prompt}]
-        )
+                    # Extract text type items
+                    text_parts = [
+                        item.get("text", "")
+                        for item in content
+                        if isinstance(item, dict) and item.get("type") == "text"
+                    ]
 
-        summary = response.content[0].text.strip()
-        # Remove quotes if present
-        summary = summary.strip('"\'')
-        return summary
+                    full_text = "".join(text_parts)
+                    if full_text:
+                        return full_text
+
+            except json.JSONDecodeError:
+                continue
 
     except Exception as e:
-        # Fallback: return first sentence or truncated text
-        first_sentence = text.split('.')[0].split('。')[0][:100]
-        return first_sentence if first_sentence else text[:50]
+        log(f"Error reading transcript: {e}")
+
+    return None
 
 
-def speak(text: str, voice: str, rate: int = 190) -> None:
-    """Speak text using macOS say command (background)."""
-    # Escape special characters for shell
-    escaped_text = text.replace('"', '\\"').replace('`', '\\`').replace('$', '\\$')
+async def summarize_with_haiku(text: str) -> str:
+    """Summarize message to 10 words or less using Claude Haiku."""
+    # Return as-is if already 10 words or less
+    if len(text.split()) <= 10:
+        return text.strip()
 
-    cmd = ['say', '-v', voice, '-r', str(rate), escaped_text]
+    # Truncate for faster processing
+    truncated = text[:500] if len(text) > 500 else text
 
-    # Run in background so it doesn't block Claude
+    system_prompt = "You are a headline writer. Output ONLY a 3-10 word headline. No questions. No commentary. No offers to help. Just the headline. If the text contains both English and Korean, write the headline in Korean."
+
+    options = ClaudeAgentOptions(
+        model="haiku",
+        system_prompt=system_prompt,
+        allowed_tools=[],
+        max_turns=1
+    )
+
+    response_text = ""
+    try:
+        async for message in query(prompt=f"요약할 텍스트: {truncated}", options=options):
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        response_text += block.text
+        # Return after consuming all messages
+        return response_text.strip() if response_text else text[:50].strip()
+    except Exception as e:
+        log(f"Haiku summarization failed: {e}")
+        return text[:50].strip()
+
+    return response_text.strip() if response_text else text[:50].strip()
+
+
+def detect_korean(text: str) -> bool:
+    """Check if text contains Korean characters."""
+    for char in text:
+        if '\uac00' <= char <= '\ud7a3':  # 한글 음절
+            return True
+        if '\u1100' <= char <= '\u11ff':  # 한글 자모
+            return True
+    return False
+
+
+def speak(text: str, config: dict) -> None:
+    """Speak text via macOS say command (background).
+
+    - Uses rate from config for natural pace
+    - Detects language: Korean uses voice_ko, English uses voice_en
+    """
+    tts_config = config.get('tts', {})
+    rate = tts_config.get('rate', 190)
+    voice_ko = tts_config.get('voice_ko', 'Yuna')
+    voice_en = tts_config.get('voice_en', 'Samantha')
+
+    cmd = ["nohup", "say", "-r", str(rate)]
+
+    if detect_korean(text):
+        cmd.extend(["-v", voice_ko])
+    else:
+        cmd.extend(["-v", voice_en])
+
+    cmd.append(text)
+
     subprocess.Popen(
         cmd,
         stdout=subprocess.DEVNULL,
@@ -80,71 +164,57 @@ def speak(text: str, voice: str, rate: int = 190) -> None:
     )
 
 
-def extract_response_text(stop_response: str) -> str:
-    """Extract plain text from Claude's stop response."""
-    try:
-        data = json.loads(stop_response)
-        # Handle different response formats
-        if isinstance(data, dict):
-            if 'response' in data:
-                return data['response']
-            if 'content' in data:
-                content = data['content']
-                if isinstance(content, list):
-                    # Extract text from content blocks
-                    texts = []
-                    for block in content:
-                        if isinstance(block, dict) and block.get('type') == 'text':
-                            texts.append(block.get('text', ''))
-                        elif isinstance(block, str):
-                            texts.append(block)
-                    return ' '.join(texts)
-                return str(content)
-        return str(data)
-    except json.JSONDecodeError:
-        return stop_response
+async def async_main() -> None:
+    log("=== HOOK START ===")
+    log(f"PWD: {os.getcwd()}")
 
-
-def main():
+    # Load config
     config = load_config()
     tts_config = config.get('tts', {})
 
     # Check if TTS is enabled
     if not tts_config.get('enabled', True):
+        log("TTS disabled in config")
         return
 
-    # Get Claude's response from environment
-    stop_response = os.environ.get('CLAUDE_STOP_RESPONSE', '')
-
-    if not stop_response:
+    # 1. Find project directory
+    project_dir = get_project_dir()
+    if not project_dir:
+        log("Project dir not found")
         return
+    log(f"Project dir: {project_dir}")
 
-    # Extract text from response
-    response_text = extract_response_text(stop_response)
-
-    if not response_text or len(response_text.strip()) < 5:
+    # 2. Find latest transcript file
+    transcript_path = get_latest_transcript(project_dir)
+    if not transcript_path:
+        log("No transcript file found")
         return
+    log(f"Transcript: {transcript_path.name}")
 
-    # Get mode (summary or full)
+    # 3. Extract last assistant message
+    last_message = extract_last_assistant_message(transcript_path)
+    if not last_message:
+        log("No assistant message found")
+        return
+    log(f"Found message ({len(last_message)} chars)")
+
+    # 4. Summarize with Haiku (if mode is summary)
     mode = tts_config.get('mode', 'summary')
-
     if mode == 'summary':
-        text_to_speak = summarize_with_haiku(response_text)
+        summary = await summarize_with_haiku(last_message)
     else:
         # Full mode: limit to first 500 chars
-        text_to_speak = response_text[:500]
+        summary = last_message[:500]
+    log(f"Summary: {summary}")
 
-    # Detect language and select voice
-    lang = detect_language(text_to_speak)
-    if lang == 'ko':
-        voice = tts_config.get('voice_ko', 'Yuna')
-    else:
-        voice = tts_config.get('voice_en', 'Samantha')
+    # 5. Speak summary
+    speak(summary, config)
 
-    rate = tts_config.get('rate', 190)
+    log("=== HOOK END ===")
 
-    # Speak!
-    speak(text_to_speak, voice, rate)
+
+def main() -> None:
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":

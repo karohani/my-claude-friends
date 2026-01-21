@@ -12,7 +12,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 /plugin install hello-skill
 /plugin install session-wrap
 /plugin install youtube-digest
-/plugin install voice-assistant
+/plugin install voice
 
 # 세션 마무리 사용
 /wrap              # 대화형 세션 분석
@@ -64,6 +64,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │       └── youtube-digest/SKILL.md
 │   └── voice-assistant/      # 음성 입출력
 │       ├── .claude-plugin/plugin.json
+│       ├── pyproject.toml    # uv run 의존성
 │       ├── config.json       # STT/TTS 설정
 │       ├── hooks/hooks.json  # Stop → TTS 자동 실행
 │       ├── scripts/          # Python 스크립트
@@ -90,7 +91,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 | youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
-| voice-assistant | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
+| voice | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
 
 ## 다섯 가지 플러그인 컴포넌트
 
@@ -171,9 +172,11 @@ mkdir -p plugins/<name>/commands       # Commands용
 - macOS Homebrew Python 같은 externally-managed 환경에서는 venv 필수
 - dev.py는 "karohani-dev" 마켓플레이스 별도 생성 (karohani-plugins와 분리)
 - 마켓플레이스 캐시 (~/.claude/plugins/cache/)는 때로 수동 업데이트 필요
-- Stop 이벤트 hook은 CLAUDE_STOP_RESPONSE 환경변수로 응답 내용 전달받음
+- Stop 이벤트 hook은 트랜스크립트 파일(~/.claude/projects/)에서 마지막 응답 추출 (더 안정적)
 - 백그라운드 TTS: subprocess.Popen(start_new_session=True) 패턴 사용
 - Korean 언어감지: Unicode 범위(0xAC00-0xD7A3) 체크하면 효율적
+- **마켓플레이스 설치 시 .venv 복사 안됨** (.gitignore 제외) → pyproject.toml + `uv run` 패턴 사용
+- `uv run --directory ${pluginDir}` 패턴: venv 없이 의존성 자동 설치/실행 (hooks는 `${CLAUDE_PLUGIN_ROOT}`)
 
 ### Claude Code 플러그인 시스템 파일 구조
 ```
@@ -200,6 +203,8 @@ mkdir -p plugins/<name>/commands       # Commands용
 - Task 도구로 에이전트 병렬 실행 가능
 - SKILL.md description 패턴: `"This skill should be used when the user asks to..."` 형식이 Claude 스킬 매칭 정확도 향상
 - 다국어 트리거 키워드: 한국어/영어 병기 시 더 많은 상황에서 매칭됨 (예: `"wrap up"`, `"세션 마무리"`, `"마무리해줘"`)
+- `/skill` 단축키: plugin.json의 name을 `voice`로 하면 `voice:voice` 스킬이 `/voice`로 접근 가능
+- claude-agent-sdk로 Haiku 요약 호출하면 anthropic 직접 호출보다 간결함
 
 ### 개발 모드 (dev.py)
 ```bash

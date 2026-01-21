@@ -41,14 +41,14 @@ Records voice and transcribes to text:
 
 1. **Record Voice**
    ```bash
-   ${pluginDir}/.venv/bin/python ${pluginDir}/scripts/record.py
+   uv run --directory ${pluginDir} python ${pluginDir}/scripts/record.py
    ```
    - Press Ctrl+C to stop recording
    - Max duration: 30 seconds
 
 2. **Transcribe**
    ```bash
-   ${pluginDir}/.venv/bin/python ${pluginDir}/scripts/transcribe.py
+   uv run --directory ${pluginDir} python ${pluginDir}/scripts/transcribe.py
    ```
    - Uses configured STT provider
 
@@ -110,6 +110,9 @@ Display current settings:
 Install before using:
 
 ```bash
+# uv (Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Recording
 brew install sox
 
@@ -121,10 +124,9 @@ brew install whisper-cpp  # Local
 mkdir -p ~/.whisper
 curl -L -o ~/.whisper/ggml-large-v3-turbo.bin \
   https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin
-
-# TTS summarization
-pip install anthropic
 ```
+
+Python dependencies (claude-agent-sdk) are auto-installed via `uv run`.
 
 ## When to Use
 
