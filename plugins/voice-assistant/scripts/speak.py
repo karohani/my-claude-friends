@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Stop hook: Summarizes and speaks the last Claude response.
+TTS hook: Summarizes and speaks the last Claude response.
 
 Based on say-summary plugin from team-attention.
 
 - Extracts the last assistant message from transcript
-- Uses Claude Agent SDK (Haiku) to summarize in 10 words or less
+- Uses Claude Agent SDK (Haiku) to summarize in 20-30 words
 - Speaks the summary via macOS say command
 - Runs in background so hook exits immediately
+- Triggered by: Stop, Notification, PostToolUse(AskUserQuestion)
 """
 
 import asyncio
@@ -93,15 +94,15 @@ def extract_last_assistant_message(transcript_path: Path) -> str | None:
 
 
 async def summarize_with_haiku(text: str) -> str:
-    """Summarize message to 10 words or less using Claude Haiku."""
-    # Return as-is if already 10 words or less
-    if len(text.split()) <= 10:
+    """Summarize message to 30 words or less using Claude Haiku."""
+    # Return as-is if already 30 words or less
+    if len(text.split()) <= 30:
         return text.strip()
 
     # Truncate for faster processing
-    truncated = text[:500] if len(text) > 500 else text
+    truncated = text[:1000] if len(text) > 1000 else text
 
-    system_prompt = "You are a headline writer. Output ONLY a 3-10 word headline. No questions. No commentary. No offers to help. Just the headline. If the text contains both English and Korean, write the headline in Korean."
+    system_prompt = "You are a summarizer. Output ONLY a 20-30 word summary. No questions. No commentary. No offers to help. Just the summary. If the text contains both English and Korean, write the summary in Korean."
 
     options = ClaudeAgentOptions(
         model="haiku",
@@ -122,8 +123,6 @@ async def summarize_with_haiku(text: str) -> str:
     except Exception as e:
         log(f"Haiku summarization failed: {e}")
         return text[:50].strip()
-
-    return response_text.strip() if response_text else text[:50].strip()
 
 
 def detect_korean(text: str) -> bool:

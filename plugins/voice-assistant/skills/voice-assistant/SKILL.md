@@ -25,7 +25,7 @@ Bash, Read, Write, Edit, AskUserQuestion
 ### TTS (Text-to-Speech)
 
 Automatically speaks Claude's responses using macOS `say` command:
-- Uses Claude Haiku to summarize responses (3-10 words)
+- Uses Claude Haiku to summarize responses (20-30 words)
 - Language detection: Korean (Yuna) / English (Samantha)
 - Runs in background (non-blocking)
 
@@ -137,7 +137,7 @@ Python dependencies (claude-agent-sdk) are auto-installed via `uv run`.
 
 ## Technical Notes
 
-- TTS runs via Stop hook (automatic after Claude responds)
+- TTS runs via Stop, Notification, and PostToolUse(AskUserQuestion) hooks
 - STT requires manual trigger (`/voice ask`)
 - Audio format: 16kHz, mono, 16-bit WAV (Whisper-compatible)
 - Haiku summarization keeps TTS concise and fast
