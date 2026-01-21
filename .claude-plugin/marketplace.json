@@ -48,7 +48,7 @@
         "name": "Jay",
         "email": "jay@example.com"
       },
-      "source": "./plugins/voice-assistant",
+      "source": "./plugins/voice",
       "category": "productivity"
     }
   ]

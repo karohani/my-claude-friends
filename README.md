@@ -430,7 +430,7 @@ if __name__ == "__main__":
 | hello-skill | Skills | 가장 간단한 스킬 예제 |
 | session-wrap | Skills + Agents | 멀티에이전트 병렬 실행 |
 | youtube-digest | Skills + Agents | 외부 도구(yt-dlp) 연동 |
-| voice-assistant | Skills + Hooks | 이벤트 기반 자동화 |
+| voice | Skills + Hooks | 이벤트 기반 자동화 |
 
 ## 동작 방식
 
@@ -543,7 +543,7 @@ Claude가 MCP 도구를 일반 도구처럼 사용
 
 - [uv](https://github.com/astral-sh/uv) - 빠른 Python 패키지 매니저
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) - YouTube 다운로더 (youtube-digest 플러그인용)
-- [whisper.cpp](https://github.com/ggerganov/whisper.cpp) - 로컬 음성인식 (voice-assistant 플러그인용)
+- [whisper.cpp](https://github.com/ggerganov/whisper.cpp) - 로컬 음성인식 (voice 플러그인용)
 
 ## 라이선스
 

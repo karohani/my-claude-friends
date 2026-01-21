@@ -62,7 +62,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │   ├── commands/youtube.md
 │   │   └── skills/
 │   │       └── youtube-digest/SKILL.md
-│   └── voice-assistant/      # 음성 입출력
+│   └── voice/      # 음성 입출력
 │       ├── .claude-plugin/plugin.json
 │       ├── pyproject.toml    # uv run 의존성
 │       ├── config.json       # STT/TTS 설정
@@ -74,7 +74,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │       │   └── config_loader.py
 │       ├── commands/voice.md
 │       └── skills/
-│           └── voice-assistant/SKILL.md
+│           └── voice/SKILL.md
 ├── scripts/
 │   ├── install.py            # 설치 스크립트
 │   ├── uninstall.py          # 제거 스크립트
@@ -105,7 +105,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 - **위치**: `plugins/<name>/hooks/hooks.json`
 - **용도**: 이벤트 기반 자동 실행 (Stop, PreToolUse 등)
 - **트리거**: Claude Code 이벤트
-- **예제**: `plugins/voice-assistant/hooks/` (Stop, Notification, PostToolUse 이벤트로 TTS 실행)
+- **예제**: `plugins/voice/hooks/` (Stop, Notification, PostToolUse 이벤트로 TTS 실행)
 
 ### 3. MCP 서버 (Python)
 - **위치**: `plugins/<name>/src/server.py`

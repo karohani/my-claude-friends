@@ -70,7 +70,7 @@ def enable_dev_mode():
     settings["enabledPlugins"]["hello-skill@karohani-dev"] = True
     settings["enabledPlugins"]["session-wrap@karohani-dev"] = True
     settings["enabledPlugins"]["youtube-digest@karohani-dev"] = True
-    settings["enabledPlugins"]["voice-assistant@karohani-dev"] = True
+    settings["enabledPlugins"]["voice@karohani-dev"] = True
 
     save_settings(settings)
 
@@ -105,7 +105,7 @@ def disable_dev_mode():
         settings["enabledPlugins"].pop("hello-skill@karohani-dev", None)
         settings["enabledPlugins"].pop("session-wrap@karohani-dev", None)
         settings["enabledPlugins"].pop("youtube-digest@karohani-dev", None)
-        settings["enabledPlugins"].pop("voice-assistant@karohani-dev", None)
+        settings["enabledPlugins"].pop("voice@karohani-dev", None)
 
     save_settings(settings)
 
