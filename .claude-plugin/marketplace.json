@@ -50,6 +50,17 @@
       },
       "source": "./plugins/voice",
       "category": "productivity"
+    },
+    {
+      "name": "tdd",
+      "description": "TDD 메타 플러그인 - 프로젝트 스택 감지 후 .claude/skills/tdd/ 생성",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/tdd",
+      "category": "productivity"
     }
   ]
 }

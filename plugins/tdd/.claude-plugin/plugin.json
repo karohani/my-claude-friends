@@ -1,0 +1,5 @@
+{
+  "name": "tdd",
+  "version": "0.1.0",
+  "description": "TDD workflow assistant - Red-Green-Refactor guidance and auto-test on code changes"
+}

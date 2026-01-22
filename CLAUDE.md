@@ -13,6 +13,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 /plugin install session-wrap
 /plugin install youtube-digest
 /plugin install voice
+/plugin install tdd
 
 # 세션 마무리 사용
 /wrap              # 대화형 세션 분석
@@ -26,6 +27,10 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 /voice                 # 상태 확인
 /voice ask             # 음성으로 질문
 /voice on|off          # TTS 켜기/끄기
+
+# TDD 메타 플러그인
+/tdd init              # 스택 감지 → .claude/skills/tdd/ 생성
+/tdd init --with-hooks # hooks.json도 생성 (자동 테스트)
 ```
 
 ## 프로젝트 구조 (마켓플레이스)
@@ -62,19 +67,28 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │   ├── commands/youtube.md
 │   │   └── skills/
 │   │       └── youtube-digest/SKILL.md
-│   └── voice/      # 음성 입출력
+│   ├── voice/                # 음성 입출력
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── pyproject.toml    # uv run 의존성
+│   │   ├── config.json       # STT/TTS 설정
+│   │   ├── hooks/hooks.json  # Stop, Notification, PostToolUse → TTS 자동 실행
+│   │   ├── scripts/          # Python 스크립트
+│   │   │   ├── speak.py      # TTS (Haiku 요약 + say)
+│   │   │   ├── record.py     # 녹음 (sox)
+│   │   │   ├── transcribe.py # STT (whisper/OpenAI)
+│   │   │   └── config_loader.py
+│   │   ├── commands/voice.md
+│   │   └── skills/
+│   │       └── voice/SKILL.md
+│   └── tdd/                  # TDD 메타 플러그인
 │       ├── .claude-plugin/plugin.json
-│       ├── pyproject.toml    # uv run 의존성
-│       ├── config.json       # STT/TTS 설정
-│       ├── hooks/hooks.json  # Stop, Notification, PostToolUse → TTS 자동 실행
-│       ├── scripts/          # Python 스크립트
-│       │   ├── speak.py      # TTS (Haiku 요약 + say)
-│       │   ├── record.py     # 녹음 (sox)
-│       │   ├── transcribe.py # STT (whisper/OpenAI)
-│       │   └── config_loader.py
-│       ├── commands/voice.md
+│       ├── templates/        # 스택별 TDD 스킬 템플릿
+│       │   ├── nodejs.md
+│       │   ├── python.md
+│       │   └── generic.md
+│       ├── commands/tdd.md
 │       └── skills/
-│           └── voice/SKILL.md
+│           └── tdd/SKILL.md  # 프로젝트별 스킬 생성 워크플로우
 ├── scripts/
 │   ├── install.py            # 설치 스크립트
 │   ├── uninstall.py          # 제거 스크립트
@@ -92,6 +106,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 | youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
 | voice | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
+| tdd | Skills (Meta) | TDD 메타 플러그인 - 프로젝트별 `.claude/skills/tdd/` 생성 |
 
 ## 다섯 가지 플러그인 컴포넌트
 
