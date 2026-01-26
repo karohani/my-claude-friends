@@ -10,6 +10,7 @@ Analyze session discoveries and determine what requires documentation updates.
 
 - **CLAUDE.md**: Project-wide information (commands, skills, agents, environment setup)
 - **context.md**: Project-specific knowledge (business context, constraints, tribal knowledge)
+- **CHANGE_LOG.md**: Chronological change history (date + one-sentence summary)
 
 ## Analysis Steps
 
@@ -32,6 +33,11 @@ Analyze session discoveries and determine what requires documentation updates.
 - Non-intuitive patterns
 - Organizational memory not evident from code
 
+### CHANGE_LOG.md
+- Major tasks completed in the session
+- Core changes based on git diff
+- Date + verb-first one-sentence summary
+
 ## Output Format
 
 ```markdown
@@ -45,6 +51,10 @@ Analyze session discoveries and determine what requires documentation updates.
 ### context.md Updates
 - [ ] [Proposal 1]: [Exact content to add]
   - Rationale: [Why this should be preserved]
+
+### CHANGE_LOG.md Entry
+- [ ] YYYY-MM-DD: [One-sentence summary]
+  - Rationale: [Why this change is worth recording]
 ```
 
 ## Quality Standards
