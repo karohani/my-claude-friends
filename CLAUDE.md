@@ -185,7 +185,7 @@ mkdir -p plugins/<name>/commands       # Commands용
 - Agents는 markdown으로 정의하고 Task 도구로 실행
 - hooks.json 구조: `{"hooks": {"EventName": [{"hooks": [{type, command}]}]}}` (중첩 구조)
 - macOS Homebrew Python 같은 externally-managed 환경에서는 venv 필수
-- dev.py는 "karohani-dev" 마켓플레이스 별도 생성 (karohani-plugins와 분리)
+- dev.py는 `--plugin-dir` 플래그를 사용하여 플러그인 로드 (alias 또는 wrapper 방식)
 - 마켓플레이스 캐시 (~/.claude/plugins/cache/)는 때로 수동 업데이트 필요
 - Stop 이벤트 hook은 트랜스크립트 파일(~/.claude/projects/)에서 마지막 응답 추출 (더 안정적)
 - 백그라운드 TTS: subprocess.Popen(start_new_session=True) 패턴 사용
@@ -214,6 +214,8 @@ mkdir -p plugins/<name>/commands       # Commands용
 - 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
 - hooks.json에서 `${pluginDir}` 사용 불가 → `${CLAUDE_PLUGIN_ROOT}` 사용 (venv는 절대경로 필요)
 - Hook에서 `os.getcwd()` 기반 프로젝트 디렉토리 탐지 불가 → 캐시 디렉토리에서 실행되므로 `~/.claude/projects/` 전체 검색 필요
+- `settings.json`의 `extraKnownMarketplaces` 필드로 마켓플레이스 등록하면 무한 로딩
+- `known_marketplaces.json` 조작 방식은 마켓플레이스 충돌 발생 → `--plugin-dir` 방식으로 전환
 
 ### 유용한 패턴
 - `${pluginDir}` 변수는 commands/skills에서 사용, hooks에서는 `${CLAUDE_PLUGIN_ROOT}` 사용
@@ -223,14 +225,28 @@ mkdir -p plugins/<name>/commands       # Commands용
 - 다국어 트리거 키워드: 한국어/영어 병기 시 더 많은 상황에서 매칭됨 (예: `"wrap up"`, `"세션 마무리"`, `"마무리해줘"`)
 - `/skill` 단축키: plugin.json의 name을 `voice`로 하면 `voice:voice` 스킬이 `/voice`로 접근 가능
 - claude-agent-sdk로 Haiku 요약 호출하면 anthropic 직접 호출보다 간결함
+- **개발 시 `--plugin-dir` 플래그 사용**: `claude --plugin-dir ./plugins/my-plugin` 형식 권장
 
 ### 개발 모드 (dev.py)
+공식 `--plugin-dir` 플래그를 사용하여 플러그인을 로드합니다.
+
 ```bash
-python scripts/dev.py          # 현재 디렉토리를 마켓플레이스로 직접 등록
-python scripts/dev.py --off    # 개발 모드 비활성화
+python scripts/dev.py              # alias 방식 (기본) - ~/.zshrc에 alias 추가
+python scripts/dev.py --alias      # alias 방식
+python scripts/dev.py --wrapper    # wrapper 방식 - ~/.local/bin/claude-dev 생성
+python scripts/dev.py --off        # 비활성화 (alias + wrapper 모두 제거)
+python scripts/dev.py --status     # 현재 상태 확인
 ```
-- 파일 수정 시 복사 없이 바로 반영됨
-- Claude Code 재시작 필요
+
+**Alias 방식** (`claude` 명령이 플러그인과 함께 실행):
+- 새 터미널에서 `claude` 실행하면 플러그인 로드됨
+- 원본 claude 실행: `\claude` 또는 `command claude`
+
+**Wrapper 방식** (`claude-dev` 별도 명령):
+- `claude-dev`: 개발 모드로 실행 (플러그인 로드)
+- `claude`: 일반 모드로 실행
+
+파일 수정 시 즉시 반영됨 (세션 재시작만 필요)
 
 ## 참고 자료
 
