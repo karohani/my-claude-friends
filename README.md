@@ -16,6 +16,8 @@ python scripts/dev.py
 /hello             # 인사 스킬
 /wrap              # 세션 마무리
 /youtube [URL]     # YouTube 영상 요약
+/voice             # 음성 입출력
+/tdd init          # TDD 스킬 생성
 ```
 
 ## 설치 방법
@@ -70,6 +72,8 @@ python scripts/uninstall.py
 | hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
 | session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
 | youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
+| voice | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
+| tdd | Skills (Meta) | TDD 메타 플러그인 - `/tdd` 트리거 |
 
 ## 주요 기능
 
@@ -107,7 +111,9 @@ brew install yt-dlp
 ├── plugins/
 │   ├── hello-skill/          # Skills 예제
 │   ├── session-wrap/         # 멀티에이전트 워크플로우
-│   └── youtube-digest/       # YouTube 영상 요약
+│   ├── youtube-digest/       # YouTube 영상 요약
+│   ├── voice/                # 음성 입출력 (STT/TTS)
+│   └── tdd/                  # TDD 메타 플러그인
 ├── scripts/
 │   ├── install.py            # 설치 스크립트
 │   ├── uninstall.py          # 제거 스크립트
@@ -431,6 +437,7 @@ if __name__ == "__main__":
 | session-wrap | Skills + Agents | 멀티에이전트 병렬 실행 |
 | youtube-digest | Skills + Agents | 외부 도구(yt-dlp) 연동 |
 | voice | Skills + Hooks | 이벤트 기반 자동화 |
+| tdd | Skills (Meta) | 프로젝트별 TDD 스킬 생성 |
 
 ## 동작 방식
 
