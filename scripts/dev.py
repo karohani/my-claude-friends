@@ -11,13 +11,21 @@ known_marketplaces.json 조작 없이 안정적으로 작동합니다.
     python scripts/dev.py --wrapper    # ~/.local/bin/claude-dev 생성
     python scripts/dev.py --off        # 모두 제거
     python scripts/dev.py --status     # 현재 상태 확인
+    python scripts/dev.py --cleanup    # 이전 방식 설정 정리
 """
 
 import argparse
+import json
 import os
 import stat
 import sys
 from pathlib import Path
+
+
+# Claude Code 설정 파일
+SETTINGS_FILE = Path.home() / ".claude" / "settings.json"
+KNOWN_MARKETPLACES_FILE = Path.home() / ".claude" / "plugins" / "known_marketplaces.json"
+BACKUP_FILE = Path.home() / ".claude" / "plugins" / "karohani-dev-backup.json"
 
 
 # 플러그인 목록
@@ -276,6 +284,75 @@ def disable_dev_mode():
     print()
 
 
+def cleanup_legacy_settings():
+    """이전 방식(karohani-dev 마켓플레이스)의 설정 정리"""
+    cleaned = []
+
+    # settings.json 정리
+    if SETTINGS_FILE.exists():
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            try:
+                settings = json.load(f)
+            except json.JSONDecodeError:
+                settings = {}
+
+        modified = False
+
+        # enabledPlugins에서 @karohani-dev 항목 제거
+        if "enabledPlugins" in settings:
+            to_remove = [k for k in settings["enabledPlugins"] if "@karohani-dev" in k]
+            for key in to_remove:
+                del settings["enabledPlugins"][key]
+                cleaned.append(f"enabledPlugins: {key}")
+                modified = True
+
+        # extraKnownMarketplaces에서 karohani-dev 제거
+        if "extraKnownMarketplaces" in settings:
+            if "karohani-dev" in settings["extraKnownMarketplaces"]:
+                del settings["extraKnownMarketplaces"]["karohani-dev"]
+                cleaned.append("extraKnownMarketplaces: karohani-dev")
+                modified = True
+            # extraKnownMarketplaces가 비어있으면 제거
+            if not settings["extraKnownMarketplaces"]:
+                del settings["extraKnownMarketplaces"]
+
+        if modified:
+            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+                json.dump(settings, f, indent=2, ensure_ascii=False)
+
+    # known_marketplaces.json에서 karohani-dev 제거
+    if KNOWN_MARKETPLACES_FILE.exists():
+        with open(KNOWN_MARKETPLACES_FILE, "r", encoding="utf-8") as f:
+            try:
+                marketplaces = json.load(f)
+            except json.JSONDecodeError:
+                marketplaces = {}
+
+        if "karohani-dev" in marketplaces:
+            del marketplaces["karohani-dev"]
+            cleaned.append("known_marketplaces: karohani-dev")
+            with open(KNOWN_MARKETPLACES_FILE, "w", encoding="utf-8") as f:
+                json.dump(marketplaces, f, indent=2, ensure_ascii=False)
+
+    # 백업 파일 제거
+    if BACKUP_FILE.exists():
+        BACKUP_FILE.unlink()
+        cleaned.append(f"backup file: {BACKUP_FILE}")
+
+    print(f"{Colors.GREEN}레거시 설정 정리 완료{Colors.NC}")
+    print()
+
+    if cleaned:
+        print(f"{Colors.YELLOW}제거된 항목:{Colors.NC}")
+        for item in cleaned:
+            print(f"  ✓ {item}")
+        print()
+        print(f"{Colors.YELLOW}Claude Code를 재시작하세요.{Colors.NC}")
+    else:
+        print(f"  {Colors.YELLOW}(정리할 항목 없음){Colors.NC}")
+    print()
+
+
 def show_status():
     """현재 상태 표시"""
     rc_file = get_shell_rc_file()
@@ -327,15 +404,19 @@ def main():
   python scripts/dev.py --wrapper    # wrapper 방식 (claude-dev 명령)
   python scripts/dev.py --off        # 비활성화
   python scripts/dev.py --status     # 상태 확인
+  python scripts/dev.py --cleanup    # 이전 방식 설정 정리
 """
     )
     parser.add_argument("--alias", action="store_true", help="~/.zshrc에 alias 추가")
     parser.add_argument("--wrapper", action="store_true", help="~/.local/bin/claude-dev 생성")
     parser.add_argument("--off", action="store_true", help="개발 모드 비활성화")
     parser.add_argument("--status", action="store_true", help="현재 상태 확인")
+    parser.add_argument("--cleanup", action="store_true", help="이전 방식(karohani-dev 마켓플레이스) 설정 정리")
     args = parser.parse_args()
 
-    if args.status:
+    if args.cleanup:
+        cleanup_legacy_settings()
+    elif args.status:
         show_status()
     elif args.off:
         disable_dev_mode()
