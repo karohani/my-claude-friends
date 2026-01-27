@@ -138,21 +138,20 @@ python scripts/dev.py          # 개발 모드 활성화
 - 파일 수정 시 Claude Code 재시작하면 바로 반영
 - 복사 없이 원본 파일 직접 사용
 
-### 수동 설정 (선택)
+### dev.py 옵션
 
-`~/.claude/settings.json`에 직접 추가:
-```json
-{
-  "extraKnownMarketplaces": {
-    "karohani-dev": {
-      "source": {
-        "source": "directory",
-        "path": "/your/path/to/my-karohani-claude-code-plugin"
-      }
-    }
-  }
-}
+```bash
+python scripts/dev.py              # alias 방식 (기본) - claude 명령 덮어쓰기
+python scripts/dev.py --alias      # alias 방식 (명시적)
+python scripts/dev.py --wrapper    # wrapper 방식 - claude-dev 별도 명령 생성
+python scripts/dev.py --off        # 개발 모드 비활성화
+python scripts/dev.py --status     # 현재 상태 확인
+python scripts/dev.py --cleanup    # 레거시 설정 정리 (이전 버전 사용자용)
 ```
+
+**Alias 방식**: `claude` 명령이 플러그인과 함께 실행됩니다. 원본 실행: `\claude` 또는 `command claude`
+
+**Wrapper 방식**: `claude-dev`로 개발 모드 실행, `claude`는 일반 모드 유지
 
 ### 개발 워크플로우
 
@@ -556,7 +555,3 @@ Claude가 MCP 도구를 일반 도구처럼 사용
 
 MIT
 
-## 참고
-
-- [team-attention/plugins-for-claude-natives](https://github.com/team-attention/plugins-for-claude-natives)
-- [Claude Code 문서](https://docs.anthropic.com/claude-code)

@@ -2,6 +2,14 @@
 
 프로젝트 변경 이력을 기록합니다.
 
+## 2026-01-27
+
+- session-wrap 플러그인 업스트림 참조 및 스크립트 동기화
+- dev.py에 `--cleanup` 옵션 추가 (레거시 karohani-dev 설정 제거)
+- dev.py를 `--plugin-dir` 방식으로 전면 재작성 (마켓플레이스 조작 방식 폐기)
+- dev.py에 원격 플러그인 충돌 방지 기능 추가
+- README.md에 voice, tdd 플러그인 추가 및 CHANGE_LOG.md 생성
+
 ## 2026-01-26
 
 - doc-updater 에이전트에 CHANGE_LOG.md 지원 추가
