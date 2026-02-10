@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 # 설정
-REPO_URL = "https://github.com/jay/my-karohani-claude-code-plugin.git"
+REPO_URL = "https://github.com/karohani/my-karohani-claude-code-plugin.git"
 MARKETPLACE_NAME = "karohani-plugins"
 INSTALL_DIR = Path.home() / ".claude" / "plugins" / "marketplaces" / MARKETPLACE_NAME
 SETTINGS_FILE = Path.home() / ".claude" / "settings.json"

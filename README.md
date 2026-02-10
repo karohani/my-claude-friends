@@ -6,7 +6,7 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, MCP 서버, Agents를 
 
 ```bash
 # 1. 저장소 클론
-git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+git clone https://github.com/karohani/my-karohani-claude-code-plugin.git
 cd my-karohani-claude-code-plugin
 
 # 2. 로컬 설치 (개발 모드 - 파일 수정 즉시 반영)
@@ -27,7 +27,7 @@ python scripts/dev.py
 현재 디렉토리를 직접 마켓플레이스로 등록합니다. 파일 수정 시 바로 반영됩니다.
 
 ```bash
-git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+git clone https://github.com/karohani/my-karohani-claude-code-plugin.git
 cd my-karohani-claude-code-plugin
 python scripts/dev.py          # 개발 모드 활성화
 python scripts/dev.py --off    # 개발 모드 비활성화
@@ -42,7 +42,7 @@ python scripts/dev.py --off    # 개발 모드 비활성화
 curl -fsSL https://raw.githubusercontent.com/jay/my-karohani-claude-code-plugin/main/scripts/install.py | python3
 
 # 로컬 설치 (현재 디렉토리에서)
-git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+git clone https://github.com/karohani/my-karohani-claude-code-plugin.git
 cd my-karohani-claude-code-plugin
 python scripts/install.py --local
 ```
@@ -129,7 +129,7 @@ brew install yt-dlp
 ### 개발 모드 (권장)
 
 ```bash
-git clone https://github.com/jay/my-karohani-claude-code-plugin.git
+git clone https://github.com/karohani/my-karohani-claude-code-plugin.git
 cd my-karohani-claude-code-plugin
 python scripts/dev.py          # 개발 모드 활성화
 ```
