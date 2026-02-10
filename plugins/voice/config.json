@@ -5,7 +5,7 @@
     "openai_model": "whisper-1"
   },
   "tts": {
-    "enabled": true,
+    "enabled": false,
     "mode": "summary",
     "voice_ko": "Yuna",
     "voice_en": "Samantha",
