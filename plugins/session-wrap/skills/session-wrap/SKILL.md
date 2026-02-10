@@ -80,7 +80,66 @@ Present options using AskUserQuestion:
 
 ### Step 6: Execute Selected Actions
 
-Perform user-selected operations.
+#### If "Create commit" selected:
+1. Generate commit message from session analysis
+2. Stage relevant files with `git add`
+3. Create commit with generated message
+
+#### If "Update CLAUDE.md" selected:
+1. Read current CLAUDE.md
+2. Apply doc-updater proposals (validated by duplicate-checker)
+3. Show diff to user for confirmation
+
+#### If "Create automation" selected:
+
+**6a. Parse Proposals**
+Extract from automation-scout output:
+- Type (skill/command/agent)
+- Name (kebab-case)
+- Path (target file location)
+- File content (between `<file-content>` and `</file-content>` tags)
+
+**6b. Present Selection**
+If multiple proposals exist, use AskUserQuestion to let user select which to create.
+
+**6c. Scaffold Files**
+For each selected proposal:
+
+```
+# For Skills
+mkdir -p .claude/skills/{name}
+# Write SKILL.md with the generated content
+
+# For Commands
+mkdir -p .claude/commands
+# Write {name}.md with the generated content
+
+# For Agents
+mkdir -p .claude/agents
+# Write {name}.md with the generated content
+```
+
+**6d. Verify Creation**
+```bash
+# Confirm files were created
+ls -la .claude/skills/{name}/ 2>/dev/null || \
+ls -la .claude/commands/{name}.md 2>/dev/null || \
+ls -la .claude/agents/{name}.md 2>/dev/null
+```
+
+**6e. Report Success**
+```markdown
+✅ Automation created successfully!
+
+**Type**: {type}
+**Name**: {name}
+**Path**: {path}
+
+You can now use `/{name}` to invoke this automation.
+```
+
+#### If "Skip" selected:
+End session wrap without performing any actions.
 
 ## When to Use
 

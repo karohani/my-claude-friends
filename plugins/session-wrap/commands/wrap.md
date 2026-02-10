@@ -34,6 +34,10 @@ Execute the session-wrap skill workflow:
    - Skip
 
 6. **Execute**: Perform selected actions
+   - **Create commit**: Stage and commit with generated message
+   - **Update CLAUDE.md**: Apply validated documentation proposals
+   - **Create automation**: Scaffold files to `.claude/skills/`, `.claude/commands/`, or `.claude/agents/`
+   - **Skip**: End without action
 
 ## Reference
 

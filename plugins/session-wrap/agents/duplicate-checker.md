@@ -43,10 +43,11 @@ Phase 1 outputs from:
 - Search commit history for recent additions
 
 ### Automation Proposals
-- Scan `skills/` directory
-- Scan `commands/` directory
-- Scan `agents/` directory
-- Check for functionally similar tools
+- Scan `.claude/skills/` directory (project-level automations)
+- Scan `.claude/commands/` directory
+- Scan `.claude/agents/` directory
+- Also check plugin directories if present (`skills/`, `commands/`, `agents/`)
+- Check for functionally similar tools by name AND by purpose
 
 ## Classification
 
