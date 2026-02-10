@@ -61,6 +61,17 @@
       },
       "source": "./plugins/tdd",
       "category": "productivity"
+    },
+    {
+      "name": "claude-container",
+      "description": "Docker 컨테이너에서 Claude Code를 안전하게 실행 - 방화벽 격리, OAuth 자동 주입, tmux 세션",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/claude-container",
+      "category": "productivity"
     }
   ]
 }

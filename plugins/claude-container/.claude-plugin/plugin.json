@@ -1,0 +1,11 @@
+{
+  "name": "claude-container",
+  "version": "0.1.0",
+  "description": "Docker 컨테이너에서 Claude Code를 안전하게 실행하는 매니저 - 방화벽 격리, OAuth 자동 주입",
+  "author": {
+    "name": "Jay",
+    "url": "https://github.com/jay"
+  },
+  "license": "MIT",
+  "keywords": ["docker", "container", "sandbox", "devcontainer"]
+}
