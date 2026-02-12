@@ -5,6 +5,11 @@ A plugin development lab for Claude Code. A marketplace covering Skills, Hooks, 
 ## Writing Guidelines
 
 - All markdown documents (`.md` files) must be written in English.
+- **SKILL.md localization rule**:
+  - `SKILL.md` is the primary file and must always be written in English.
+  - A Korean translation must be provided as `SKILL-ko.md` in the same directory.
+  - When `SKILL.md` is created or updated, `SKILL-ko.md` must also be created or updated to stay in sync.
+  - Both files must have identical structure; only the language differs.
 
 ## Installation
 
