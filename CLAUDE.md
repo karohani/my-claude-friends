@@ -1,52 +1,56 @@
 # Karohani Claude Code Plugin
 
-Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 다루는 마켓플레이스.
+A plugin development lab for Claude Code. A marketplace covering Skills, Hooks, Agents, and Commands.
 
-## 설치 방법
+## Writing Guidelines
+
+- All markdown documents (`.md` files) must be written in English.
+
+## Installation
 
 ```bash
-# 마켓플레이스 추가
+# Add marketplace
 /plugin marketplace add jay/my-karohani-claude-code-plugin
 
-# 플러그인 설치
+# Install plugins
 /plugin install hello-skill
 /plugin install session-wrap
 /plugin install youtube-digest
 /plugin install voice
 /plugin install tdd
 
-# 세션 마무리 사용
-/wrap              # 대화형 세션 분석
-/wrap [message]    # 빠른 커밋
+# Session wrap usage
+/wrap              # Interactive session analysis
+/wrap [message]    # Quick commit
 
-# YouTube 영상 분석 (yt-dlp 필요)
-/youtube [URL]         # 자막 추출 + 요약
-/youtube [URL] --quiz  # 퀴즈 포함
+# YouTube video analysis (requires yt-dlp)
+/youtube [URL]         # Extract subtitles + summarize
+/youtube [URL] --quiz  # Include quiz
 
-# 음성 입출력 (sox, whisper-cpp 필요)
-/voice                 # 상태 확인
-/voice ask             # 음성으로 질문
-/voice on|off          # TTS 켜기/끄기
+# Voice input/output (requires sox, whisper-cpp)
+/voice                 # Check status
+/voice ask             # Ask via voice
+/voice on|off          # Toggle TTS on/off
 
-# TDD 메타 플러그인
-/tdd init              # 스택 감지 → .claude/skills/tdd/ 생성
-/tdd init --with-hooks # hooks.json도 생성 (자동 테스트)
+# TDD meta plugin
+/tdd init              # Detect stack → generate .claude/skills/tdd/
+/tdd init --with-hooks # Also generate hooks.json (auto-test)
 ```
 
-## 프로젝트 구조 (마켓플레이스)
+## Project Structure (Marketplace)
 
 ```
 .
 ├── .claude-plugin/
-│   ├── plugin.json           # 루트 메타데이터
-│   └── marketplace.json      # 플러그인 목록 정의
+│   ├── plugin.json           # Root metadata
+│   └── marketplace.json      # Plugin list definition
 ├── plugins/
-│   ├── hello-skill/          # Skills 방식 예제
+│   ├── hello-skill/          # Skills example
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/hello/SKILL.md
-│   ├── session-wrap/         # 멀티에이전트 워크플로우
+│   ├── session-wrap/         # Multi-agent workflow
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── agents/           # 5개 전문화 에이전트
+│   │   ├── agents/           # 5 specialized agents
 │   │   │   ├── doc-updater.md
 │   │   │   ├── automation-scout.md
 │   │   │   ├── learning-extractor.md
@@ -57,9 +61,9 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │       ├── session-wrap/SKILL.md
 │   │       ├── history-insight/SKILL.md
 │   │       └── session-analyzer/SKILL.md
-│   ├── youtube-digest/       # YouTube 영상 요약
+│   ├── youtube-digest/       # YouTube video summarizer
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── agents/           # 4개 전문화 에이전트
+│   │   ├── agents/           # 4 specialized agents
 │   │   │   ├── transcript-extractor.md
 │   │   │   ├── proper-noun-corrector.md
 │   │   │   ├── summary-generator.md
@@ -67,189 +71,189 @@ Claude Code 플러그인 개발 실험실. Skills, Hooks, Agents, Commands를 �
 │   │   ├── commands/youtube.md
 │   │   └── skills/
 │   │       └── youtube-digest/SKILL.md
-│   ├── voice/                # 음성 입출력
+│   ├── voice/                # Voice input/output
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── pyproject.toml    # uv run 의존성
-│   │   ├── config.json       # STT/TTS 설정
-│   │   ├── hooks/hooks.json  # Stop, Notification, PostToolUse → TTS 자동 실행
-│   │   ├── scripts/          # Python 스크립트
-│   │   │   ├── speak.py      # TTS (Haiku 요약 + say)
-│   │   │   ├── record.py     # 녹음 (sox)
+│   │   ├── pyproject.toml    # uv run dependencies
+│   │   ├── config.json       # STT/TTS configuration
+│   │   ├── hooks/hooks.json  # Stop, Notification, PostToolUse → auto TTS
+│   │   ├── scripts/          # Python scripts
+│   │   │   ├── speak.py      # TTS (Haiku summary + say)
+│   │   │   ├── record.py     # Recording (sox)
 │   │   │   ├── transcribe.py # STT (whisper/OpenAI)
 │   │   │   └── config_loader.py
 │   │   ├── commands/voice.md
 │   │   └── skills/
 │   │       └── voice/SKILL.md
-│   └── tdd/                  # TDD 메타 플러그인
+│   └── tdd/                  # TDD meta plugin
 │       ├── .claude-plugin/plugin.json
-│       ├── templates/        # 스택별 TDD 스킬 템플릿
+│       ├── templates/        # Stack-specific TDD skill templates
 │       │   ├── nodejs.md
 │       │   ├── python.md
 │       │   └── generic.md
 │       ├── commands/tdd.md
 │       └── skills/
-│           └── tdd/SKILL.md  # 프로젝트별 스킬 생성 워크플로우
+│           └── tdd/SKILL.md  # Per-project skill generation workflow
 ├── scripts/
-│   ├── install.py            # 설치 스크립트
-│   ├── uninstall.py          # 제거 스크립트
-│   └── dev.py                # 개발 모드 설정
-├── CLAUDE.md                 # 이 파일
+│   ├── install.py            # Install script
+│   ├── uninstall.py          # Uninstall script
+│   └── dev.py                # Dev mode setup
+├── CLAUDE.md                 # This file
 ├── README.md
 └── pyproject.toml
 ```
 
-## 플러그인 목록
+## Plugin List
 
-| 플러그인 | 타입 | 설명 |
-|---------|------|------|
-| hello-skill | Skills | 간단한 인사 스킬 - `/hello` 트리거 |
-| session-wrap | Skills + Agents | 멀티에이전트 세션 분석 - `/wrap` 트리거 |
-| youtube-digest | Skills + Agents | YouTube 영상 요약 - `/youtube` 트리거 |
-| voice | Skills + Hooks | 음성 입출력 (STT/TTS) - `/voice` 트리거 |
-| tdd | Skills (Meta) | TDD 메타 플러그인 - 프로젝트별 `.claude/skills/tdd/` 생성 |
+| Plugin | Type | Description |
+|--------|------|-------------|
+| hello-skill | Skills | Simple greeting skill - `/hello` trigger |
+| session-wrap | Skills + Agents | Multi-agent session analysis - `/wrap` trigger |
+| youtube-digest | Skills + Agents | YouTube video summarizer - `/youtube` trigger |
+| voice | Skills + Hooks | Voice input/output (STT/TTS) - `/voice` trigger |
+| tdd | Skills (Meta) | TDD meta plugin - generates per-project `.claude/skills/tdd/` |
 
-## 다섯 가지 플러그인 컴포넌트
+## Five Plugin Components
 
 ### 1. Skills (SKILL.md)
-- **위치**: `plugins/<name>/skills/<skill-name>/SKILL.md`
-- **용도**: 프롬프트/워크플로우 정의, 코드 없이 동작
-- **트리거**: `/skillname` 슬래시 커맨드
-- **예제**: `plugins/hello-skill/`, `plugins/session-wrap/skills/`
+- **Location**: `plugins/<name>/skills/<skill-name>/SKILL.md`
+- **Purpose**: Define prompts/workflows, works without code
+- **Trigger**: `/skillname` slash command
+- **Example**: `plugins/hello-skill/`, `plugins/session-wrap/skills/`
 
 ### 2. Hooks (hooks.json)
-- **위치**: `plugins/<name>/hooks/hooks.json`
-- **용도**: 이벤트 기반 자동 실행 (Stop, PreToolUse 등)
-- **트리거**: Claude Code 이벤트
-- **예제**: `plugins/voice/hooks/` (Stop, Notification, PostToolUse 이벤트로 TTS 실행)
+- **Location**: `plugins/<name>/hooks/hooks.json`
+- **Purpose**: Event-driven auto-execution (Stop, PreToolUse, etc.)
+- **Trigger**: Claude Code events
+- **Example**: `plugins/voice/hooks/` (TTS execution on Stop, Notification, PostToolUse events)
 
-### 3. MCP 서버 (Python)
-- **위치**: `plugins/<name>/src/server.py`
-- **용도**: 커스텀 도구, API 호출, 외부 서비스 연동
-- **설정**: plugin.json의 `mcpServers` 필드
+### 3. MCP Servers (Python)
+- **Location**: `plugins/<name>/src/server.py`
+- **Purpose**: Custom tools, API calls, external service integration
+- **Config**: `mcpServers` field in plugin.json
 
 ### 4. Agents (agents/*.md)
-- **위치**: `plugins/<name>/agents/<agent-name>.md`
-- **용도**: 전문화된 분석/처리 에이전트 정의
-- **특징**: Task 도구로 병렬 실행 가능
-- **예제**: `plugins/session-wrap/agents/` (5개 에이전트)
+- **Location**: `plugins/<name>/agents/<agent-name>.md`
+- **Purpose**: Define specialized analysis/processing agents
+- **Feature**: Can be executed in parallel via the Task tool
+- **Example**: `plugins/session-wrap/agents/` (5 agents)
 
 ### 5. Commands (commands/*.md)
-- **위치**: `plugins/<name>/commands/<command>.md`
-- **용도**: 슬래시 커맨드 정의, Skills의 진입점
-- **예제**: `plugins/session-wrap/commands/wrap.md`
+- **Location**: `plugins/<name>/commands/<command>.md`
+- **Purpose**: Define slash commands, entry points for Skills
+- **Example**: `plugins/session-wrap/commands/wrap.md`
 
-## 새 플러그인 추가하기
+## Adding a New Plugin
 
-### 1. 디렉토리 생성
+### 1. Create directories
 ```bash
 mkdir -p plugins/<name>/.claude-plugin
-mkdir -p plugins/<name>/skills/<name>  # Skills용
-mkdir -p plugins/<name>/src            # MCP용
-mkdir -p plugins/<name>/agents         # Agents용
-mkdir -p plugins/<name>/commands       # Commands용
+mkdir -p plugins/<name>/skills/<name>  # For Skills
+mkdir -p plugins/<name>/src            # For MCP
+mkdir -p plugins/<name>/agents         # For Agents
+mkdir -p plugins/<name>/commands       # For Commands
 ```
 
-### 2. plugin.json 작성
+### 2. Create plugin.json
 ```json
 {
   "name": "<name>",
   "version": "0.1.0",
-  "description": "설명",
-  "mcpServers": { ... }  // MCP 서버인 경우
+  "description": "Description",
+  "mcpServers": { ... }  // If MCP server
 }
 ```
 
-### 3. marketplace.json에 등록
+### 3. Register in marketplace.json
 ```json
 {
-  "owner": { "name": "작성자", "email": "email@example.com" },
+  "owner": { "name": "Author", "email": "email@example.com" },
   "plugins": [
     {
       "name": "<name>",
       "source": "./plugins/<name>",
       "version": "1.0.0",
-      "author": { "name": "작성자", "email": "email@example.com" },
+      "author": { "name": "Author", "email": "email@example.com" },
       "category": "productivity"
     }
   ]
 }
 ```
-**주의**: `path` 대신 `source` 필드 사용, `owner` 필수
+**Note**: Use `source` field instead of `path`, `owner` is required.
 
-## 개발 인사이트
+## Development Insights
 
-### 배운 것들
-- MCP 서버는 `.mcp.json` 또는 plugin.json의 `mcpServers`로 설정
-- Skills는 SKILL.md 하나로 슬래시 커맨드 정의 가능
-- `uv`로 Python 의존성 관리하면 편함
-- Agents는 markdown으로 정의하고 Task 도구로 실행
-- hooks.json 구조: `{"hooks": {"EventName": [{"hooks": [{type, command}]}]}}` (중첩 구조)
-- macOS Homebrew Python 같은 externally-managed 환경에서는 venv 필수
-- dev.py는 `--plugin-dir` 플래그를 사용하여 플러그인 로드 (alias 또는 wrapper 방식)
-- 마켓플레이스 캐시 (~/.claude/plugins/cache/)는 때로 수동 업데이트 필요
-- Stop 이벤트 hook은 트랜스크립트 파일(~/.claude/projects/)에서 마지막 응답 추출 (더 안정적)
-- 백그라운드 TTS: subprocess.Popen(start_new_session=True) 패턴 사용
-- Korean 언어감지: Unicode 범위(0xAC00-0xD7A3) 체크하면 효율적
-- **마켓플레이스 설치 시 .venv 복사 안됨** (.gitignore 제외) → pyproject.toml + `uv run` 패턴 사용
-- `uv run --directory ${pluginDir}` 패턴: venv 없이 의존성 자동 설치/실행 (hooks는 `${CLAUDE_PLUGIN_ROOT}`)
-- **Hook 실행 시 cwd는 프로젝트가 아닌 캐시 디렉토리** (`~/.claude/plugins/cache/`) → `os.getcwd()` 사용 불가
-- **CLAUDE_PROJECT_ROOT 환경변수 없음** - 프로젝트 경로 접근 시 `~/.claude/projects/` 전체 탐색 필요
+### Lessons Learned
+- MCP servers are configured via `.mcp.json` or the `mcpServers` field in plugin.json
+- Skills can define a slash command with just a single SKILL.md file
+- `uv` is convenient for Python dependency management
+- Agents are defined in markdown and executed via the Task tool
+- hooks.json structure: `{"hooks": {"EventName": [{"hooks": [{type, command}]}]}}` (nested structure)
+- venv is required in externally-managed environments like macOS Homebrew Python
+- dev.py loads plugins using the `--plugin-dir` flag (alias or wrapper mode)
+- Marketplace cache (~/.claude/plugins/cache/) sometimes needs manual updates
+- Stop event hooks extract the last response from transcript files (~/.claude/projects/) (more stable)
+- Background TTS: use `subprocess.Popen(start_new_session=True)` pattern
+- Korean language detection: checking Unicode range (0xAC00-0xD7A3) is efficient
+- **.venv is not copied during marketplace installation** (.gitignore excluded) → use pyproject.toml + `uv run` pattern
+- `uv run --directory ${pluginDir}` pattern: auto-install/run dependencies without venv (hooks use `${CLAUDE_PLUGIN_ROOT}`)
+- **Hook cwd is the cache directory, not the project** (`~/.claude/plugins/cache/`) → `os.getcwd()` is unreliable
+- **CLAUDE_PROJECT_ROOT env var does not exist** - accessing project path requires searching all of `~/.claude/projects/`
 
-### Claude Code 플러그인 시스템 파일 구조
+### Claude Code Plugin System File Structure
 ```
 ~/.claude/
 ├── plugins/
-│   ├── known_marketplaces.json    # 등록된 마켓플레이스 목록
-│   ├── installed_plugins.json     # 설치된 플러그인 목록
+│   ├── known_marketplaces.json    # Registered marketplace list
+│   ├── installed_plugins.json     # Installed plugin list
 │   └── marketplaces/
-│       └── {marketplace-name}/    # 마켓플레이스별 플러그인 저장
-└── settings.json                  # enabledPlugins로 활성화 관리
+│       └── {marketplace-name}/    # Plugins stored per marketplace
+└── settings.json                  # Managed via enabledPlugins
 ```
 
-### 실패한 시도
-- settings.local.json에 mcpServers 넣으면 안됨 (스키마 오류)
-- marketplace.json에서 `path` 대신 `source` 필드 사용해야 함
-- hooks.json의 "hooks"를 단순 배열/객체로 정의하면 안됨 (중첩 필요: EventName → [{hooks: [...]}])
-- 현재 Python 환경에서 venv 없이 패키지 설치하면 externally-managed 오류 발생 (Homebrew)
-- 캐시 불일치 시 명시적 cache 삭제나 Claude Code 재시작 필요
-- hooks.json에서 `${pluginDir}` 사용 불가 → `${CLAUDE_PLUGIN_ROOT}` 사용 (venv는 절대경로 필요)
-- Hook에서 `os.getcwd()` 기반 프로젝트 디렉토리 탐지 불가 → 캐시 디렉토리에서 실행되므로 `~/.claude/projects/` 전체 검색 필요
-- `settings.json`의 `extraKnownMarketplaces` 필드로 마켓플레이스 등록하면 무한 로딩
-- `known_marketplaces.json` 조작 방식은 마켓플레이스 충돌 발생 → `--plugin-dir` 방식으로 전환
+### Failed Attempts
+- Placing mcpServers in settings.local.json causes schema errors
+- Must use `source` field instead of `path` in marketplace.json
+- hooks.json "hooks" cannot be a simple array/object (nesting required: EventName → [{hooks: [...]}])
+- Installing packages without venv in the current Python environment causes externally-managed errors (Homebrew)
+- Cache inconsistency requires explicit cache deletion or Claude Code restart
+- `${pluginDir}` is not available in hooks.json → use `${CLAUDE_PLUGIN_ROOT}` (venv requires absolute paths)
+- `os.getcwd()` based project directory detection fails in hooks → runs from cache directory, must search all of `~/.claude/projects/`
+- Registering marketplaces via `extraKnownMarketplaces` field in `settings.json` causes infinite loading
+- Manipulating `known_marketplaces.json` directly causes marketplace conflicts → switched to `--plugin-dir` approach
 
-### 유용한 패턴
-- `${pluginDir}` 변수는 commands/skills에서 사용, hooks에서는 `${CLAUDE_PLUGIN_ROOT}` 사용
-- 멀티에이전트 파이프라인: Phase 1 병렬 실행 → Phase 2 검증 패턴 (session-wrap 참고)
-- Task 도구로 에이전트 병렬 실행 가능
-- SKILL.md description 패턴: `"This skill should be used when the user asks to..."` 형식이 Claude 스킬 매칭 정확도 향상
-- 다국어 트리거 키워드: 한국어/영어 병기 시 더 많은 상황에서 매칭됨 (예: `"wrap up"`, `"세션 마무리"`, `"마무리해줘"`)
-- `/skill` 단축키: plugin.json의 name을 `voice`로 하면 `voice:voice` 스킬이 `/voice`로 접근 가능
-- claude-agent-sdk로 Haiku 요약 호출하면 anthropic 직접 호출보다 간결함
-- **개발 시 `--plugin-dir` 플래그 사용**: `claude --plugin-dir ./plugins/my-plugin` 형식 권장
+### Useful Patterns
+- `${pluginDir}` variable is used in commands/skills; hooks use `${CLAUDE_PLUGIN_ROOT}`
+- Multi-agent pipeline: Phase 1 parallel execution → Phase 2 verification pattern (see session-wrap)
+- Agents can be executed in parallel via the Task tool
+- SKILL.md description pattern: `"This skill should be used when the user asks to..."` format improves Claude skill matching accuracy
+- Multilingual trigger keywords: listing both Korean/English increases matching coverage (e.g., `"wrap up"`, `"세션 마무리"`, `"마무리해줘"`)
+- `/skill` shortcut: setting plugin.json name to `voice` allows `voice:voice` skill to be accessed via `/voice`
+- Using claude-agent-sdk for Haiku summary calls is more concise than direct anthropic calls
+- **Use `--plugin-dir` flag during development**: `claude --plugin-dir ./plugins/my-plugin` format recommended
 
-### 개발 모드 (dev.py)
-공식 `--plugin-dir` 플래그를 사용하여 플러그인을 로드합니다.
+### Dev Mode (dev.py)
+Loads plugins using the official `--plugin-dir` flag.
 
 ```bash
-python scripts/dev.py              # alias 방식 (기본) - ~/.zshrc에 alias 추가
-python scripts/dev.py --alias      # alias 방식
-python scripts/dev.py --wrapper    # wrapper 방식 - ~/.local/bin/claude-dev 생성
-python scripts/dev.py --off        # 비활성화 (alias + wrapper 모두 제거)
-python scripts/dev.py --status     # 현재 상태 확인
+python scripts/dev.py              # Alias mode (default) - adds alias to ~/.zshrc
+python scripts/dev.py --alias      # Alias mode
+python scripts/dev.py --wrapper    # Wrapper mode - creates ~/.local/bin/claude-dev
+python scripts/dev.py --off        # Deactivate (removes both alias + wrapper)
+python scripts/dev.py --status     # Check current status
 ```
 
-**Alias 방식** (`claude` 명령이 플러그인과 함께 실행):
-- 새 터미널에서 `claude` 실행하면 플러그인 로드됨
-- 원본 claude 실행: `\claude` 또는 `command claude`
+**Alias mode** (`claude` command runs with plugins):
+- Run `claude` in a new terminal to load plugins
+- Run original claude: `\claude` or `command claude`
 
-**Wrapper 방식** (`claude-dev` 별도 명령):
-- `claude-dev`: 개발 모드로 실행 (플러그인 로드)
-- `claude`: 일반 모드로 실행
+**Wrapper mode** (separate `claude-dev` command):
+- `claude-dev`: Run in dev mode (with plugins loaded)
+- `claude`: Run in normal mode
 
-파일 수정 시 즉시 반영됨 (세션 재시작만 필요)
+File changes are reflected immediately (only session restart needed).
 
-## 참고 자료
+## References
 
 - [team-attention/plugins-for-claude-natives](https://github.com/team-attention/plugins-for-claude-natives)
 - [MCP Python SDK](https://github.com/anthropics/mcp-python-sdk)
-- [Claude Code 문서](https://docs.anthropic.com/claude-code)
+- [Claude Code Docs](https://docs.anthropic.com/claude-code)
