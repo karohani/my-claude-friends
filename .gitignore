@@ -40,3 +40,5 @@ htmlcov/
 
 # Jupyter
 .ipynb_checkpoints/
+
+.omc
