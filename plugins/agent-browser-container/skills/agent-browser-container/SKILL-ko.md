@@ -83,10 +83,10 @@ python3 ${pluginDir}/scripts/browser.py pull
                     Playwright/CDP로 Chromium 제어 (headless: false, DISPLAY=:1)
 
 컨테이너 (Linux, --read-only)
-  +-- KasmVNC 서버 (가상 디스플레이 :1, 포트 6901로 스트리밍)
+  +-- KasmVNC 서버 (가상 디스플레이 :1, 인증 없음, 포트 6901로 스트리밍)
   +-- Chromium (CDP와 함께 자동 실행, 포트 9222)
   +-- socat (0.0.0.0:9223 -> 127.0.0.1:9222 호스트 CDP 접근 포워딩)
-  +-- Claude Code (Playwright CDP로 Chromium 제어)
+  +-- Claude Code (tmux 세션 "claude", --dangerously-skip-permissions로 자동 시작)
   +-- iptables 방화벽 (허용 목록 + CHROME_ALLOW_ALL 옵션)
   +-- tmpfs: /tmp, /run, /home/node (쓰기 가능하지만 임시)
   +-- Playwright 캐시: /opt/ms-playwright (이미지 레이어에 영구 저장)
@@ -109,15 +109,14 @@ python3 ${pluginDir}/scripts/browser.py pull
 
 - `ANTHROPIC_API_KEY`: Claude API 키 (OAuth 대신 사용 가능)
 - `BROWSER_IMAGE`: 사용자 정의 이미지 이름 (팀 공유를 위한 레지스트리 경로)
-- `VNC_PW`: 고정 VNC 비밀번호 설정 (기본값: 세션당 무작위)
 - `CHROME_ALLOW_ALL`: `1`로 설정하면 모든 HTTP/HTTPS 트래픽 허용 (기본값: `1`)
 
 ## 사용자 상호작용 흐름
 
 1. `python3 browser.py run .`을 실행하여 컨테이너 시작
-2. 호스트 브라우저에서 `http://localhost:6901`을 열어 KasmVNC 확인
-3. 터미널에 표시된 VNC 비밀번호 입력
-4. Claude Code(컨테이너 내부)가 `headless: false`로 Playwright Chromium 실행
+2. 호스트 브라우저에서 `http://localhost:6901`을 열어 KasmVNC 확인 (비밀번호 불필요)
+3. Claude Code가 tmux 세션을 통해 컨테이너 내부에서 자동 시작
+4. Claude Code가 `headless: false`로 Playwright Chromium 실행
 5. Chromium이 KasmVNC 웹 UI에 나타남 - 실시간으로 자동화 관찰
 6. 수동 작업이 필요한 경우(로그인, CAPTCHA), KasmVNC를 통해 Chrome과 상호작용
 7. 수동 작업 완료 후 Claude Code에게 계속하라고 지시
@@ -139,12 +138,14 @@ python3 ${pluginDir}/scripts/browser.py pull
 1. 사용자의 의도 파악 (run / list / stop / remove / build)
 2. Docker 설치 확인 (`docker --version`)
 3. Bash 도구를 통해 적절한 명령 실행
-4. VNC 접근 URL 및 비밀번호를 포함한 결과를 사용자에게 표시
+4. VNC 접근 URL을 포함한 결과를 사용자에게 표시
 
 ## 참고 사항
 
 - 컨테이너는 `--dangerously-skip-permissions` 모드로 Claude를 실행합니다 (컨테이너 격리로 인해 안전)
+- Claude Code는 tmux 세션에서 자동 시작되며, 컨테이너 내부에서 `tmux attach -t claude`로 재연결 가능
 - Chromium은 `--no-sandbox` 플래그를 사용하며, 컨테이너 자체가 샌드박스이므로 안전합니다
+- KasmVNC 인증이 비활성화됨 (localhost 전용 접근); 비밀번호 불필요
 - KasmVNC는 기존의 Xvfb + x11vnc + websockify + noVNC 스택을 단일 바이너리로 대체합니다
 - 방화벽이 적용되지 않는 환경에서도 Docker 네트워크 격리가 기본 보호 제공
 - zsh, fzf, ripgrep, jq, tmux와 같은 개발 도구가 사전 설치되어 있습니다

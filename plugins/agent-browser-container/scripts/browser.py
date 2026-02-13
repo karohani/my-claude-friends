@@ -106,15 +106,14 @@ KASMVNC_SH = textwrap.dedent("""\
     #!/usr/bin/env bash
     set -uo pipefail
 
-    VNC_PW="${VNC_PW:-$(openssl rand -hex 8)}"
     VNC_PORT="${VNC_PORT:-6901}"
     VNC_RESOLUTION="${VNC_RESOLUTION:-1920x1080}"
 
     # Create dirs (tmpfs wipes /home/node on each start)
     mkdir -p /home/node/.vnc
 
-    # Create KasmVNC password (default path: ~/.kasmpasswd)
-    printf '%s\\n%s\\n' "$VNC_PW" "$VNC_PW" | kasmvncpasswd -u node -w -o 2>&1 || true
+    # Create a dummy KasmVNC user with write access (required internally even with auth disabled)
+    printf 'dummypass\\ndummypass\\n' | kasmvncpasswd -u node -w -o 2>&1 || true
 
     # Write xstartup (openbox window manager for Chrome rendering)
     cat > /home/node/.vnc/xstartup << 'XSTARTUP'
@@ -126,7 +125,7 @@ KASMVNC_SH = textwrap.dedent("""\
     # Mark DE as already selected so select-de.sh is skipped
     touch /home/node/.vnc/.de-was-selected
 
-    # Write KasmVNC config to disable SSL (localhost-only access)
+    # Write KasmVNC config: disable SSL (localhost-only access)
     cat > /home/node/.vnc/kasmvnc.yaml << 'YAML'
     network:
       protocol: http
@@ -136,12 +135,14 @@ KASMVNC_SH = textwrap.dedent("""\
         pem_key:
     YAML
 
-    # Start KasmVNC server
+    # Start KasmVNC server (DisableBasicAuth + SecurityTypes None = no login required)
     kasmvncserver :1 \\
         -geometry "$VNC_RESOLUTION" \\
         -websocketPort "$VNC_PORT" \\
         -FrameRate 30 \\
         -AlwaysShared \\
+        -DisableBasicAuth \\
+        -SecurityTypes None \\
         -log '*:stderr:30' 2>&1 &
 
     sleep 3
@@ -150,20 +151,25 @@ KASMVNC_SH = textwrap.dedent("""\
     echo "========================================="
     echo "  KasmVNC ready!"
     echo "  URL: http://localhost:${VNC_PORT}"
-    echo "  Password: ${VNC_PW}"
+    echo "  (No authentication required)"
     echo "========================================="
     echo ""
 
     # Launch Chromium with CDP (Chrome DevTools Protocol)
+    export DISPLAY=:1
     PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
     CHROME_BIN=$(find "$PLAYWRIGHT_BROWSERS_PATH" -name "chrome" -type f 2>/dev/null | head -1)
     if [ -n "$CHROME_BIN" ]; then
+        mkdir -p /tmp/chrome-data
         "$CHROME_BIN" \
             --no-sandbox \
             --disable-gpu \
             --disable-dev-shm-usage \
+            --disable-software-rasterizer \
+            --no-first-run \
+            --no-default-browser-check \
+            --user-data-dir=/tmp/chrome-data \
             --remote-debugging-port=9222 \
-            --display=:1 \
             --window-size=1920,1080 \
             --start-maximized \
             "about:blank" &
@@ -497,7 +503,9 @@ def cmd_run(project_path: str = ".", shell_mode: bool = False):
         "/usr/bin/bash", "-c",
         "/usr/local/bin/init-firewall.sh; "
         "su -s /usr/bin/bash node -c '/usr/local/bin/start-kasmvnc.sh'; "
-        "exec su -s /usr/bin/bash node -c 'exec sleep infinity'",
+        "exec su -s /usr/bin/bash node -c '"
+        "tmux new-session -d -s claude \"claude --dangerously-skip-permissions\"; "
+        "exec sleep infinity'",
     ]
 
     docker_check(*cmd[1:], capture_output=True)
@@ -516,7 +524,7 @@ def cmd_run(project_path: str = ".", shell_mode: bool = False):
     time.sleep(3)
     r = docker("logs", name, capture_output=True, text=True)
     for line in r.stdout.splitlines():
-        if "Password:" in line or "KasmVNC" in line or "===" in line or "URL:" in line or "CDP:" in line or "Chrome launched" in line:
+        if "KasmVNC" in line or "===" in line or "URL:" in line or "CDP:" in line or "Chrome launched" in line or "authentication" in line:
             print(f"  {line.strip()}")
     print()
     print(f"  Shell:  python3 browser.py shell {name}")

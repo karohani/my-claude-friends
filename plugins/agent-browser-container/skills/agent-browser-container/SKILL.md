@@ -83,10 +83,10 @@ Host (macOS)
                    Controls Chromium via Playwright/CDP (headless: false, DISPLAY=:1)
 
 Container (Linux, --read-only)
-  +-- KasmVNC Server (virtual display :1, streams to port 6901)
+  +-- KasmVNC Server (virtual display :1, no-auth, streams to port 6901)
   +-- Chromium (auto-launched with CDP on port 9222)
   +-- socat (forwards 0.0.0.0:9223 -> 127.0.0.1:9222 for host CDP access)
-  +-- Claude Code (controls Chromium via Playwright CDP)
+  +-- Claude Code (tmux session "claude", auto-started with --dangerously-skip-permissions)
   +-- iptables firewall (allowlist + CHROME_ALLOW_ALL option)
   +-- tmpfs: /tmp, /run, /home/node (writable but ephemeral)
   +-- Playwright cache at /opt/ms-playwright (persistent in image layer)
@@ -109,15 +109,14 @@ Container (Linux, --read-only)
 
 - `ANTHROPIC_API_KEY`: Claude API key (can be used instead of OAuth)
 - `BROWSER_IMAGE`: Custom image name (registry path for team sharing)
-- `VNC_PW`: Set a fixed VNC password (default: random per session)
 - `CHROME_ALLOW_ALL`: Set to `1` to allow all HTTP/HTTPS traffic (default: `1`)
 
 ## User Interaction Flow
 
 1. Run `python3 browser.py run .` to start the container
-2. Open `http://localhost:6901` in the host browser to see KasmVNC
-3. Enter the VNC password shown in the terminal
-4. Claude Code (inside container) launches Playwright Chromium with `headless: false`
+2. Open `http://localhost:6901` in the host browser to see KasmVNC (no password required)
+3. Claude Code auto-starts inside the container via tmux session
+4. Claude Code launches Playwright Chromium with `headless: false`
 5. Chromium appears in the KasmVNC web UI - watch automation in real time
 6. When manual action is needed (login, CAPTCHA), interact with Chrome via KasmVNC
 7. Tell Claude Code to continue after completing the manual action
@@ -139,12 +138,14 @@ Container (Linux, --read-only)
 1. Identify the user's intent (run / list / stop / remove / build)
 2. Verify Docker is installed (`docker --version`)
 3. Execute the appropriate command via the Bash tool
-4. Show the result to the user including VNC access URL and password
+4. Show the result to the user including VNC access URL
 
 ## Notes
 
 - The container runs Claude with `--dangerously-skip-permissions` mode (safe due to container isolation)
+- Claude Code auto-starts in a tmux session; reconnect with `tmux attach -t claude` inside the container
 - Chromium uses `--no-sandbox` flag which is safe because the container IS the sandbox
+- KasmVNC authentication is disabled (localhost-only access); no password required
 - KasmVNC replaces the traditional Xvfb + x11vnc + websockify + noVNC stack with a single binary
 - Even in environments where the firewall is not applied, Docker network isolation provides basic protection
 - Development tools such as zsh, fzf, ripgrep, jq, and tmux are pre-installed
