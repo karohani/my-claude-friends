@@ -14,137 +14,137 @@ arguments:
 
 # YouTube Digest Skill
 
-YouTube 영상을 분석하여 마크다운 문서로 정리하는 워크플로우입니다.
+A workflow for analyzing YouTube videos and organizing them into markdown documents.
 
-## 전제 조건
+## Prerequisites
 
-yt-dlp가 설치되어 있어야 합니다:
+yt-dlp must be installed:
 ```bash
 brew install yt-dlp
-# 또는
+# or
 pip install yt-dlp
 ```
 
-## 워크플로우
+## Workflow
 
-### Phase 1: 메타데이터 및 자막 추출
+### Phase 1: Metadata and Subtitle Extraction
 
-1. **URL 검증**: YouTube URL 형식 확인 (youtube.com/watch, youtu.be)
+1. **URL Validation**: Verify YouTube URL format (youtube.com/watch, youtu.be)
 
-2. **메타데이터 추출** (yt-dlp 사용):
+2. **Metadata Extraction** (using yt-dlp):
    ```bash
    yt-dlp --print "%(title)s|||%(channel)s|||%(upload_date)s|||%(duration_string)s" --no-download "URL"
    ```
 
-3. **자막 추출** - 우선순위:
-   - 1순위: 수동 한국어 자막 (`ko`)
-   - 2순위: 수동 영어 자막 (`en`)
-   - 3순위: 자동 생성 한국어 자막 (`ko-auto`)
-   - 4순위: 자동 생성 영어 자막 (`en-auto`)
+3. **Subtitle Extraction** — Priority order:
+   - 1st: Manual Korean subtitles (`ko`)
+   - 2nd: Manual English subtitles (`en`)
+   - 3rd: Auto-generated Korean subtitles (`ko-auto`)
+   - 4th: Auto-generated English subtitles (`en-auto`)
 
    ```bash
-   # 사용 가능한 자막 확인
+   # Check available subtitles
    yt-dlp --list-subs --no-download "URL"
 
-   # 자막 다운로드 (예: 한국어)
+   # Download subtitles (e.g., Korean)
    yt-dlp --write-sub --sub-lang ko --skip-download --output "%(id)s" "URL"
-   # 또는 자동 생성 자막
+   # Or auto-generated subtitles
    yt-dlp --write-auto-sub --sub-lang ko --skip-download --output "%(id)s" "URL"
    ```
 
-4. **자막 파일 파싱**: Python 스크립트로 VTT 파싱
+4. **Subtitle File Parsing**: Parse VTT using Python script
    ```bash
-   # 기본 (중복 제거 + 병합)
+   # Default (deduplication + merging)
    python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt
 
-   # 타임스탬프 포함
+   # With timestamps
    python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt --timestamps
 
-   # JSON 형식 출력
+   # JSON format output
    python3 ${pluginDir}/scripts/parse_vtt.py <video_id>.ko.vtt --json
    ```
 
-### Phase 2: 고유명사 교정
+### Phase 2: Proper Noun Correction
 
-Task 도구로 `proper-noun-corrector` 에이전트 실행:
-- 자막에서 고유명사, 기술 용어, 브랜드명 추출
-- WebSearch로 정확한 철자 확인
-- 일관성 있게 교정 적용
+Run the `proper-noun-corrector` agent via the Task tool:
+- Extract proper nouns, technical terms, and brand names from subtitles
+- Verify correct spelling via WebSearch
+- Apply corrections consistently
 
-### Phase 3: 요약 및 인사이트 생성
+### Phase 3: Summary and Insight Generation
 
-Task 도구로 `summary-generator` 에이전트 실행:
-- 3-5문장 요약
-- 핵심 인사이트 3-5개
-- 섹션별 구분 (가능한 경우)
+Run the `summary-generator` agent via the Task tool:
+- 3-5 sentence summary
+- 3-5 key insights
+- Section-by-section breakdown (when possible)
 
-### Phase 4: 퀴즈 생성 (선택)
+### Phase 4: Quiz Generation (Optional)
 
-`--quiz` 플래그가 있는 경우, Task 도구로 `quiz-generator` 에이전트 실행:
-- 기초 문제 3개
-- 중급 문제 3개
-- 고급 문제 3개
+If the `--quiz` flag is provided, run the `quiz-generator` agent via the Task tool:
+- 3 basic questions
+- 3 intermediate questions
+- 3 advanced questions
 
-### Phase 5: 마크다운 저장
+### Phase 5: Save as Markdown
 
-저장 경로: `./youtube/{channel-name}/{YYYY-MM-DD}-{sanitized-title}.md`
+Save path: `./youtube/{channel-name}/{YYYY-MM-DD}-{sanitized-title}.md`
 
-## 출력 형식
+## Output Format
 
 ```markdown
 ---
-title: "[제목]"
-source: "[채널명]"
+title: "[Title]"
+source: "[Channel Name]"
 url: "[URL]"
-duration: "[영상 길이]"
-date_processed: "[처리 날짜]"
-original_language: "[원본 자막 언어]"
+duration: "[Video Duration]"
+date_processed: "[Processing Date]"
+original_language: "[Original Subtitle Language]"
 ---
 
-# [제목]
+# [Title]
 
-> 출처: [채널명](채널URL) | 길이: [영상 길이] | [업로드 날짜]
+> Source: [Channel Name](Channel URL) | Duration: [Video Duration] | [Upload Date]
 
-## 요약
+## Summary
 
-[3-5문장으로 영상 내용 요약]
+[3-5 sentence summary of the video content]
 
-## 핵심 인사이트
+## Key Insights
 
-- **[인사이트 1 제목]**: [설명]
-- **[인사이트 2 제목]**: [설명]
-- **[인사이트 3 제목]**: [설명]
+- **[Insight 1 Title]**: [Description]
+- **[Insight 2 Title]**: [Description]
+- **[Insight 3 Title]**: [Description]
 
-## 전체 스크립트
+## Full Script
 
-[타임스탬프 포함 교정된 전체 스크립트]
+[Corrected full script with timestamps]
 
-## 학습 퀴즈
+## Learning Quiz
 
-### 기초 (Basic)
-1. [문제]
-   - A) [선택지]
-   - B) [선택지]
-   - C) [선택지]
-   - D) [선택지]
-   <details><summary>정답</summary>B) [정답 및 설명]</details>
+### Basic
+1. [Question]
+   - A) [Choice]
+   - B) [Choice]
+   - C) [Choice]
+   - D) [Choice]
+   <details><summary>Answer</summary>B) [Answer and explanation]</details>
 
-### 중급 (Intermediate)
+### Intermediate
 [...]
 
-### 고급 (Advanced)
+### Advanced
 [...]
 ```
 
-## 에러 처리
+## Error Handling
 
-- **자막 없음**: "이 영상에는 사용 가능한 자막이 없습니다. 음성 인식 도구를 사용하거나 수동으로 스크립트를 입력해주세요."
-- **URL 오류**: "올바른 YouTube URL을 입력해주세요. 예: https://youtube.com/watch?v=xxxxx"
-- **yt-dlp 없음**: "yt-dlp가 설치되어 있지 않습니다. `brew install yt-dlp` 또는 `pip install yt-dlp`로 설치해주세요."
+- **No subtitles**: "No subtitles are available for this video. Please use a speech recognition tool or manually input the script."
+- **URL error**: "Please enter a valid YouTube URL. Example: https://youtube.com/watch?v=xxxxx"
+- **yt-dlp not installed**: "yt-dlp is not installed. Install it with `brew install yt-dlp` or `pip install yt-dlp`."
 
-## 임시 파일 정리
+## Temporary File Cleanup
 
-작업 완료 후 다운로드된 .vtt 파일 삭제:
+Delete downloaded .vtt files after completion:
 ```bash
 rm -f *.vtt
 ```
