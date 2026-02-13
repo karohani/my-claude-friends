@@ -215,42 +215,50 @@ def tty_flags() -> list[str]:
     return ["-it"] if sys.stdin.isatty() else ["-i"]
 
 
-def get_host_credentials() -> str | None:
-    """macOS Keychain에서 Claude Code OAuth 자격증명을 추출"""
+def get_host_credentials() -> tuple[str | None, str | None]:
+    """macOS Keychain에서 Claude Code OAuth 자격증명을 추출.
+    Returns (full_json, access_token) tuple."""
     if platform.system() != "Darwin":
-        return None
+        return None, None
     try:
         r = subprocess.run(
             ["security", "find-generic-password",
              "-s", "Claude Code-credentials", "-w"],
             capture_output=True, text=True)
         if r.returncode == 0 and r.stdout.strip():
-            # JSON 형식 유효성 확인
-            json.loads(r.stdout.strip())
-            return r.stdout.strip()
-    except (subprocess.SubprocessError, json.JSONDecodeError):
+            raw = r.stdout.strip()
+            creds = json.loads(raw)
+            token = creds.get("claudeAiOauth", {}).get("accessToken")
+            return raw, token
+    except (subprocess.SubprocessError, json.JSONDecodeError, KeyError):
         pass
-    return None
+    return None, None
 
 
-def inject_credentials(container_name: str):
-    """호스트 OAuth 자격증명을 컨테이너에 주입"""
-    creds = get_host_credentials()
-    if not creds:
-        return
-    # 볼륨 소유권 수정 (root로 생성됨)
+def inject_credentials_file(container_name: str, creds_json: str):
+    """호스트 OAuth 자격증명을 .credentials.json 파일로 컨테이너에 주입하고
+    interactive 모드 온보딩 스킵을 위한 .claude.json 설정"""
     docker("exec", "-u", "root", container_name, "chown", "node:node",
            "/home/node/.claude", capture_output=True)
-    # stdin으로 파이프하여 쉘 인용부호 문제 회피
-    # Claude Code는 .credentials.json (dot prefix) 파일에서 인증 정보를 읽음
+    # .credentials.json 주입
     run(["docker", "exec", "-i", container_name,
          "sh", "-c", "cat > /home/node/.claude/.credentials.json"],
-        input=creds, text=True, capture_output=True)
+        input=creds_json, text=True, capture_output=True)
     docker("exec", "-u", "root", container_name, "sh", "-c",
            "chmod 600 /home/node/.claude/.credentials.json && "
            "chown node:node /home/node/.claude/.credentials.json",
            capture_output=True)
-    ok("호스트 인증 정보 주입 완료")
+    # .claude.json에 hasCompletedOnboarding 설정 (interactive 로그인 선택 화면 스킵)
+    onboarding_script = (
+        "const fs = require('fs');"
+        "const p = '/home/node/.claude/.claude.json';"
+        "let d = {};"
+        "try { d = JSON.parse(fs.readFileSync(p, 'utf8')); } catch {}"
+        "d.hasCompletedOnboarding = true;"
+        "fs.writeFileSync(p, JSON.stringify(d));"
+    )
+    docker("exec", container_name, "node", "-e", onboarding_script,
+           capture_output=True)
 
 
 # ─── .devcontainer 생성 ─────────────────────────────────────
@@ -318,6 +326,7 @@ def cmd_run(project_path: str = ".", shell_mode: bool = False):
     docker("rm", "-f", name, capture_output=True)
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    creds_json, oauth_token = get_host_credentials()
 
     cmd = [
         "docker", "run", "-d",
@@ -333,6 +342,9 @@ def cmd_run(project_path: str = ".", shell_mode: bool = False):
 
     if api_key:
         cmd += ["-e", f"ANTHROPIC_API_KEY={api_key}"]
+    elif oauth_token:
+        # 환경변수로 OAuth 토큰 주입 (interactive 모드 로그인 스킵)
+        cmd += ["-e", f"CLAUDE_CODE_OAUTH_TOKEN={oauth_token}"]
 
     cmd += [
         image_name(),
@@ -343,7 +355,11 @@ def cmd_run(project_path: str = ".", shell_mode: bool = False):
     ]
 
     docker_check(*cmd[1:], capture_output=True)
-    inject_credentials(name)
+
+    # .credentials.json 파일도 주입 (파일 기반 인증 fallback)
+    if creds_json:
+        inject_credentials_file(name, creds_json)
+        ok("호스트 인증 정보 주입 완료")
 
     print()
     ok(f"시작: \033[32m{name}\033[0m")
