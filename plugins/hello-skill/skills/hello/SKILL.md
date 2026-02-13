@@ -7,35 +7,35 @@ user-invocable: true
 
 # Hello Skill
 
-첫 번째 예제 스킬 - Claude Code Skills 시스템 학습용
+A first example skill for learning the Claude Code Skills system.
 
 ## Trigger
 
-`/hello` 또는 사용자가 인사할 때
+`/hello` or when the user greets.
 
 ## Behavior
 
-사용자에게 친근하게 인사하고 현재 프로젝트 상태를 간단히 요약한다.
+Greet the user in a friendly manner and provide a brief summary of the current project status.
 
 ## Steps
 
-1. 사용자의 언어를 감지한다 (한국어/영어)
-2. 해당 언어로 인사한다
-3. 현재 작업 디렉토리의 프로젝트 구조를 간단히 파악한다
-4. 오늘 할 수 있는 작업을 제안한다
+1. Detect the user's language (Korean/English)
+2. Greet in the detected language
+3. Briefly assess the project structure of the current working directory
+4. Suggest tasks that can be done today
 
 ## Output Format
 
 ```
-[인사말]
+[Greeting]
 
-현재 프로젝트: [프로젝트명]
-주요 파일: [파일 목록]
+Current project: [Project name]
+Key files: [File list]
 
-제안: [오늘 할 수 있는 작업 1-2개]
+Suggestions: [1-2 tasks that can be done today]
 ```
 
 ## Notes
 
-- 이 스킬은 Skills 시스템 학습을 위한 예제입니다
-- SKILL.md 파일 구조와 작성법을 익히는 데 참고하세요
+- This skill is an example for learning the Skills system
+- Use it as a reference for SKILL.md file structure and writing conventions

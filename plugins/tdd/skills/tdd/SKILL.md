@@ -1,10 +1,17 @@
+---
+name: tdd
+description: This skill should be used when the user asks to "tdd init", "setup tdd", "TDD 설정", "테스트 주도 개발 설정", "add tdd workflow", or wants to set up TDD for their project.
+version: 1.0.0
+user-invocable: true
+---
+
 # TDD Meta Plugin (/tdd)
 
 Generate project-specific TDD workflow skills. Detects stack and creates customized `.claude/skills/tdd/SKILL.md` for each project.
 
 ## Trigger
 
-This skill should be used when the user asks to "tdd init", "setup tdd", "TDD 설정", "테스트 주도 개발 설정", "add tdd workflow", or wants to set up TDD for their project.
+`/tdd init`, "setup tdd", "add tdd workflow"
 
 ## Allowed Tools
 
