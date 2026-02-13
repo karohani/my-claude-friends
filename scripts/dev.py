@@ -29,7 +29,7 @@ BACKUP_FILE = Path.home() / ".claude" / "plugins" / "karohani-dev-backup.json"
 
 
 # 플러그인 목록
-PLUGINS = ["hello-skill", "session-wrap", "youtube-digest", "voice", "tdd"]
+PLUGINS = ["hello-skill", "session-wrap", "youtube-digest", "voice", "tdd", "claude-container"]
 
 # 설정 파일 경로
 ZSHRC_FILE = Path.home() / ".zshrc"

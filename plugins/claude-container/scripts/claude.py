@@ -242,12 +242,13 @@ def inject_credentials(container_name: str):
     docker("exec", "-u", "root", container_name, "chown", "node:node",
            "/home/node/.claude", capture_output=True)
     # stdin으로 파이프하여 쉘 인용부호 문제 회피
+    # Claude Code는 .credentials.json (dot prefix) 파일에서 인증 정보를 읽음
     run(["docker", "exec", "-i", container_name,
-         "sh", "-c", "cat > /home/node/.claude/credentials.json"],
+         "sh", "-c", "cat > /home/node/.claude/.credentials.json"],
         input=creds, text=True, capture_output=True)
     docker("exec", "-u", "root", container_name, "sh", "-c",
-           "chmod 600 /home/node/.claude/credentials.json && "
-           "chown node:node /home/node/.claude/credentials.json",
+           "chmod 600 /home/node/.claude/.credentials.json && "
+           "chown node:node /home/node/.claude/.credentials.json",
            capture_output=True)
     ok("호스트 인증 정보 주입 완료")
 
