@@ -42,3 +42,7 @@ htmlcov/
 .ipynb_checkpoints/
 
 .omc
+
+# Agent Browser Container (auto-generated)
+.devcontainer-browser/
+downloads/

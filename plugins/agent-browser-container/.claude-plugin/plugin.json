@@ -1,0 +1,11 @@
+{
+  "name": "agent-browser-container",
+  "version": "0.1.0",
+  "description": "Run Chrome safely inside a Docker container with KasmVNC for visual access - Claude Code controls Chrome via Playwright while the host user can see and interact through a browser-based VNC interface",
+  "author": {
+    "name": "Jay",
+    "url": "https://github.com/karohani"
+  },
+  "license": "MIT",
+  "keywords": ["docker", "container", "browser", "chrome", "kasmvnc", "playwright", "sandbox", "security"]
+}

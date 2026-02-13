@@ -83,6 +83,17 @@
       },
       "source": "./plugins/functional-code",
       "category": "productivity"
+    },
+    {
+      "name": "agent-browser-container",
+      "description": "Run Chrome safely inside a Docker container with KasmVNC visual access - Playwright automation with host interaction support",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/agent-browser-container",
+      "category": "productivity"
     }
   ]
 }
