@@ -72,6 +72,17 @@
       },
       "source": "./plugins/claude-container",
       "category": "productivity"
+    },
+    {
+      "name": "functional-code",
+      "description": "Functional programming guidance based on Grokking Simplicity - write and review code following FP principles",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jay",
+        "email": "jay@example.com"
+      },
+      "source": "./plugins/functional-code",
+      "category": "productivity"
     }
   ]
 }

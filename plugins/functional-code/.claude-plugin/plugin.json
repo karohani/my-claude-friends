@@ -1,0 +1,11 @@
+{
+  "name": "functional-code",
+  "version": "0.1.0",
+  "description": "Functional programming guidance based on Grokking Simplicity - write and review code following FP principles",
+  "author": {
+    "name": "Jay",
+    "url": "https://github.com/karohani"
+  },
+  "license": "MIT",
+  "keywords": ["functional-programming", "code-review", "grokking-simplicity", "immutability", "fp"]
+}

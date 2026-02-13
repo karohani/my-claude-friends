@@ -116,6 +116,7 @@ A plugin development lab for Claude Code. A marketplace covering Skills, Hooks, 
 | youtube-digest | Skills + Agents | YouTube video summarizer - `/youtube` trigger |
 | voice | Skills + Hooks | Voice input/output (STT/TTS) - `/voice` trigger |
 | tdd | Skills (Meta) | TDD meta plugin - generates per-project `.claude/skills/tdd/` |
+| functional-code | Skills | FP guidance (Grokking Simplicity) - `/functional-code` trigger |
 
 ## Five Plugin Components
 
