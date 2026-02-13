@@ -45,4 +45,5 @@ htmlcov/
 
 # Agent Browser Container (auto-generated)
 .devcontainer-browser/
+.devcontainer/
 downloads/
